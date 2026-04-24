@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sessió 5: Queries Personalitzades amb Spring Data JPA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&family=Fira+Code&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1B2C65; --primary-container: #2A3B7A;
+            --secondary: #FAC213; --secondary-container: #FEF08A; --secondary-fixed: #84CC16;
+            --tertiary: #0A1948; --tertiary-container: #050C24;
+            --surface: #F4F7FB; --surface-container-lowest: #FFFFFF;
+            --surface-container-low: #E2E8F0; --surface-container-high: #CBD5E1;
+            --surface-container-highest: #94A3B8;
+            --on-surface: #1B2C65; --on-surface-muted: #475569;
+            --radius-md: 0.5rem; --radius-lg: 1rem; --radius-xl: 1.5rem;
+            --danger: #ef4444;
+        }
+        .shadow-ambient { box-shadow: 0 10px 40px -10px rgba(27, 44, 101, 0.1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; border: none; }
+        body { font-family: 'Manrope', sans-serif; background-color: var(--surface); color: var(--on-surface); line-height: 1.7; font-size: 1.125rem; padding-bottom: 6rem; }
+        h1, h2, h3, h4 { color: var(--primary); letter-spacing: -0.02em; line-height: 1.2; }
+        h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 1rem; }
+        h2 { font-size: 2.2rem; font-weight: 800; margin: 3rem 0 1.5rem 0; border-bottom: 2px solid var(--surface-container-low); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1rem 0; }
+        p { margin-bottom: 1.5rem; color: var(--on-surface-muted); }
+        ul, ol { margin-bottom: 1.5rem; padding-left: 2rem; color: var(--on-surface-muted); }
+        li { margin-bottom: 0.75rem; }
+        strong { color: var(--on-surface); }
+        .label { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+        .hero-section { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; min-height: 50vh; margin: 4rem 0; gap: 3rem; position: relative; }
+        .hero-text { flex: 1 1 500px; z-index: 10; }
+        .hero-text .badge { display: inline-block; background: var(--surface-container-low); padding: 6px 14px; border-radius: var(--radius-md); margin-bottom: 1.5rem; color: var(--primary); border-left: 4px solid var(--secondary); }
+        .hero-glass-card { flex: 1 1 400px; background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 3rem; border-radius: var(--radius-xl); z-index: 5; background-image: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(244,247,251,0.6) 100%); border: 1px solid rgba(255,255,255,0.4); }
+        .hero-glass-card h3 { margin-top: 0; color: var(--primary); font-weight: 800; }
+        .content-block { background: var(--surface-container-lowest); border-radius: var(--radius-lg); padding: 3rem; margin-bottom: 2rem; box-shadow: 0 4px 24px rgba(0,0,0,0.03); position: relative; }
+        .callout { background-color: var(--surface-container-low); padding: 1.5rem 2rem; border-radius: var(--radius-lg); margin: 2rem 0; color: var(--primary); font-weight: 600; font-size: 1.15rem; border-left: 5px solid var(--secondary); }
+        .callout.tip { border-left-color: var(--secondary-fixed); }
+        .callout.warning { border-left-color: var(--danger); }
+        .tag { background: var(--surface-container-high); padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; color: var(--primary); display: inline-block; margin-bottom: 8px; font-weight: 800; }
+        .scholarly-list { list-style: none; padding-left: 0; }
+        .scholarly-list li { padding: 16px 20px; margin-bottom: 12px; background-color: var(--surface-container-low); border-radius: var(--radius-md); transition: background-color 0.2s; display: flex; gap: 15px; align-items: start; }
+        .scholarly-list li:hover { background-color: var(--surface); }
+        pre { background-color: var(--tertiary-container); color: #E2E8F0; padding: 2.5rem 2rem 2rem 2rem; border-radius: var(--radius-lg); font-family: 'Fira Code', monospace; font-size: 0.95rem; overflow-x: auto; margin: 1.5rem 0; position: relative; box-shadow: inset 0 2px 15px rgba(0,0,0,0.6); }
+        pre::before { content: attr(data-lang); position: absolute; top: 12px; right: 15px; font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.1em; color: var(--on-surface-muted); }
+        code { font-family: 'Fira Code', monospace; }
+        .inline-code { background: var(--surface-container-low); padding: 2px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: var(--primary); }
+        .checkpoint-card { background: var(--surface-container-lowest); padding: 3rem; border-radius: var(--radius-lg); position: relative; margin-top: 3rem; border: 1px solid var(--surface-container-low); }
+        .quiz-option { background: var(--surface-container-lowest); padding: 1rem 1.5rem; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 1rem; font-family: 'Manrope', sans-serif; color: var(--primary); text-align: left; transition: all 0.2s; border: 2px solid var(--surface-container-high); width: 100%; margin-bottom: 10px; display: block; }
+        .quiz-option:hover { border-color: var(--primary); background: var(--surface); }
+        .quiz-option.correct { border-color: var(--secondary-fixed); background: rgba(132, 204, 22, 0.1); color: var(--secondary-fixed); }
+        .quiz-option.wrong { border-color: var(--danger); background: rgba(239, 68, 68, 0.1); color: var(--danger); text-decoration: line-through; }
+        .feedback-area { margin-top: 1.5rem; padding: 1.5rem; border-radius: var(--radius-md); display: none; font-weight: 600; font-size: 1.1rem; }
+        .code-input-inline { background: rgba(255,255,255,0.05); border: none; border-bottom: 2px dashed var(--secondary); color: var(--secondary); font-family: 'Fira Code', monospace; font-size: 1rem; width: 280px; text-align: center; outline: none; padding: 4px; border-radius: 4px 4px 0 0; transition: all 0.2s; }
+        .code-input-inline:focus { background: rgba(255,255,255,0.1); border-bottom-color: var(--surface-container-lowest); }
+        .code-input-inline.success { color: var(--secondary-fixed); border-bottom: 2px solid var(--secondary-fixed); background: rgba(132, 204, 22, 0.1); pointer-events: none; }
+        .code-step-block { opacity: 0.5; pointer-events: none; transition: opacity 0.4s; position: relative; }
+        .code-step-block.active { opacity: 1; pointer-events: auto; }
+        .code-step-block.completed::after { content: "✓ COMPLETAT"; position: absolute; top: -10px; right: 0; background: var(--secondary-fixed); color: white; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; }
+        .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 1.5rem 0; border-radius: var(--radius-lg); overflow: hidden; }
+        .comparison-table th { background: var(--primary); color: white; padding: 14px 20px; text-align: left; font-weight: 800; font-size: 0.95rem; }
+        .comparison-table td { padding: 14px 20px; border-bottom: 1px solid var(--surface-container-low); color: var(--on-surface-muted); font-size: 0.95rem; }
+        .comparison-table tr:nth-child(even) td { background: var(--surface); }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .diagram-block { background: var(--surface-container-low); border-radius: var(--radius-lg); padding: 2.5rem; margin: 2rem 0; text-align: center; font-family: 'Fira Code', monospace; font-size: 0.95rem; line-height: 1.8; color: var(--primary); }
+        .highlight-box { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%); color: white; padding: 2.5rem; border-radius: var(--radius-lg); margin: 2rem 0; text-align: center; }
+        .highlight-box code { color: var(--secondary); font-size: 1.1em; }
+        .highlight-box p { color: rgba(255,255,255,0.8); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- HERO -->
+        <header class="hero-section">
+            <div class="hero-text">
+                <span class="label badge">Spring Boot · Sessió 5</span>
+                <h1>Queries Personalitzades amb JPA</h1>
+                <p style="font-size:1.3rem;">El CRUD estàndard és potent, però no sempre suficient. Avui aprendrem a crear queries personalitzades sense escriure SQL — i quan sí que cal escriure'l.</p>
+            </div>
+            <div class="hero-glass-card shadow-ambient">
+                <h3 class="label">Punts Clau de la Sessió</h3>
+                <ul class="scholarly-list">
+                    <li><span>🔮</span> <strong>Derived Query Methods</strong>: Spring genera SQL a partir del nom del mètode.</li>
+                    <li><span>📝</span> <strong>@Query (JPQL)</strong>: query orientada a objectes, no a taules.</li>
+                    <li><span>🗃️</span> <strong>@Query (nativeQuery)</strong>: SQL pur quan ho necessitem.</li>
+                    <li><span>🏗️</span> Pràctica integradora final.</li>
+                </ul>
+            </div>
+        </header>
+
+
+        <!-- BLOC 1: DERIVED QUERY METHODS -->
+        <section class="content-block">
+            <span class="tag">Màgia amb sentit</span>
+            <h2>1. Derived Query Methods</h2>
+
+            <p>Spring Data JPA pot <strong>generar queries automàticament</strong> a partir del <strong>nom del mètode</strong>. Només cal seguir una convenció de noms:</p>
+
+            <pre data-lang="JAVA"><code>public interface ProductRepository extends JpaRepository&lt;Product, Long&gt; {
+
+    // SELECT * FROM products WHERE name = ?
+    List&lt;Product&gt; findByName(String name);
+
+    // SELECT * FROM products WHERE category = ?
+    List&lt;Product&gt; findByCategory(String category);
+
+    // SELECT * FROM products WHERE price < ?
+    List&lt;Product&gt; findByPriceLessThan(Double maxPrice);
+
+    // SELECT * FROM products WHERE price > ?
+    List&lt;Product&gt; findByPriceGreaterThan(Double minPrice);
+
+    // SELECT * FROM products WHERE price BETWEEN ? AND ?
+    List&lt;Product&gt; findByPriceBetween(Double min, Double max);
+
+    // SELECT * FROM products WHERE name LIKE '%keyword%'
+    List&lt;Product&gt; findByNameContaining(String keyword);
+
+    // SELECT * FROM products WHERE stock > 0
+    List&lt;Product&gt; findByStockGreaterThan(Integer minStock);
+
+    // SELECT * FROM products ORDER BY price ASC
+    List&lt;Product&gt; findAllByOrderByPriceAsc();
+
+    // SELECT * FROM products WHERE category = ? ORDER BY price DESC
+    List&lt;Product&gt; findByCategoryOrderByPriceDesc(String category);
+
+    // SELECT COUNT(*) FROM products WHERE category = ?
+    long countByCategory(String category);
+
+    // SELECT * FROM products WHERE category = ? AND price < ?
+    List&lt;Product&gt; findByCategoryAndPriceLessThan(String category, Double maxPrice);
+}</code></pre>
+
+            <div class="callout">
+                <span class="label" style="display:block; margin-bottom: 8px;">Com funciona?</span>
+                Spring llegeix el nom del mètode, el descompon en paraules clau i genera el SQL:
+                <pre data-lang="DESCOMPOSICIÓ" style="margin-top: 1rem; font-size: 0.85rem;"><code>findByNameContaining("poma")
+│     │    │
+│     │    └── LIKE '%poma%'
+│     └── WHERE name
+└── SELECT * FROM products
+
+findByCategoryAndPriceLessThan("Fruita", 2.0)
+│     │         │   │
+│     │         │   └── price < 2.0
+│     │         └── AND
+│     └── WHERE category = 'Fruita'
+└── SELECT * FROM products</code></pre>
+            </div>
+
+            <h3>1.1 Taula de paraules clau</h3>
+            <table class="comparison-table">
+                <tr><th>Paraula clau</th><th>SQL generat</th><th>Exemple de mètode</th></tr>
+                <tr><td><code>findBy</code></td><td><code>SELECT ... WHERE</code></td><td><code>findByName(name)</code></td></tr>
+                <tr><td><code>And</code></td><td><code>AND</code></td><td><code>findByNameAndCategory(n, c)</code></td></tr>
+                <tr><td><code>Or</code></td><td><code>OR</code></td><td><code>findByNameOrCategory(n, c)</code></td></tr>
+                <tr><td><code>LessThan</code></td><td><code>&lt;</code></td><td><code>findByPriceLessThan(p)</code></td></tr>
+                <tr><td><code>GreaterThan</code></td><td><code>&gt;</code></td><td><code>findByPriceGreaterThan(p)</code></td></tr>
+                <tr><td><code>Between</code></td><td><code>BETWEEN ? AND ?</code></td><td><code>findByPriceBetween(a, b)</code></td></tr>
+                <tr><td><code>Containing</code></td><td><code>LIKE '%?%'</code></td><td><code>findByNameContaining(k)</code></td></tr>
+                <tr><td><code>StartingWith</code></td><td><code>LIKE '?%'</code></td><td><code>findByNameStartingWith(k)</code></td></tr>
+                <tr><td><code>OrderBy...Asc/Desc</code></td><td><code>ORDER BY ... ASC/DESC</code></td><td><code>findAllByOrderByPriceAsc()</code></td></tr>
+                <tr><td><code>countBy</code></td><td><code>SELECT COUNT(*) WHERE</code></td><td><code>countByCategory(c)</code></td></tr>
+                <tr><td><code>existsBy</code></td><td><code>SELECT CASE WHEN COUNT(*)&gt;0</code></td><td><code>existsByName(n)</code></td></tr>
+                <tr><td><code>deleteBy</code></td><td><code>DELETE FROM ... WHERE</code></td><td><code>deleteByCategory(c)</code></td></tr>
+                <tr><td><code>IsNull</code></td><td><code>IS NULL</code></td><td><code>findByDescriptionIsNull()</code></td></tr>
+            </table>
+
+            <div class="callout tip">
+                <span class="label" style="display:block; margin-bottom: 8px;">💡 Detecció d'errors</span>
+                Si escrius un nom de mètode incorrecte (p.ex. <code>findByNom</code> quan el camp es diu <code>name</code>), <strong>Spring falla a l'arrencada</strong> amb un error clar. No et passarà desapercebut.
+            </div>
+        </section>
+
+
+        <!-- BLOC 2: @Query JPQL -->
+        <section class="content-block">
+            <span class="tag">Queries explícites</span>
+            <h2>2. <span class="inline-code">@Query</span> amb JPQL</h2>
+
+            <p>Quan els noms de mètode es fan massa llargs o la query és complexa, podem escriure-la explícitament amb <strong>JPQL</strong> (Java Persistence Query Language).</p>
+
+            <p>JPQL és com SQL, però <strong>orientat a entitats</strong> (classes Java), no a taules:</p>
+
+            <table class="comparison-table">
+                <tr><th>SQL (taules)</th><th>JPQL (entitats)</th></tr>
+                <tr><td><code>SELECT * FROM <strong>products</strong></code></td><td><code>SELECT p FROM <strong>Product</strong> p</code></td></tr>
+                <tr><td><code>products.<strong>name</strong></code></td><td><code>p.<strong>name</strong></code> (camp Java, no columna)</td></tr>
+                <tr><td><code>SELECT <strong>COUNT(*)</strong></code></td><td><code>SELECT <strong>COUNT(p)</strong></code></td></tr>
+            </table>
+
+            <h3>2.1 Exemples amb @Query</h3>
+            <pre data-lang="JAVA"><code>public interface ProductRepository extends JpaRepository&lt;Product, Long&gt; {
+
+    // JPQL: buscar productes cars
+    @Query("SELECT p FROM Product p WHERE p.price > :minPrice")
+    List&lt;Product&gt; findExpensive(@Param("minPrice") Double minPrice);
+
+    // JPQL: buscar per nom (case-insensitive)
+    @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List&lt;Product&gt; searchByName(@Param("keyword") String keyword);
+
+    // JPQL: preu mitjà per categoria
+    @Query("SELECT AVG(p.price) FROM Product p WHERE p.category = :category")
+    Double averagePriceByCategory(@Param("category") String category);
+
+    // JPQL: categories úniques
+    @Query("SELECT DISTINCT p.category FROM Product p")
+    List&lt;String&gt; findAllCategories();
+
+    // JPQL: productes amb stock baix
+    @Query("SELECT p FROM Product p WHERE p.stock &lt; :threshold ORDER BY p.stock ASC")
+    List&lt;Product&gt; findLowStock(@Param("threshold") Integer threshold);
+}</code></pre>
+
+            <div class="callout">
+                <span class="label" style="display:block; margin-bottom: 8px;">@Param: noms de paràmetre</span>
+                Amb JPQL, els paràmetres es referencien amb <code>:nom</code> (no amb <code>?</code>). L'anotació <code>@Param("nom")</code> vincula el paràmetre Java amb el <code>:nom</code> de la query.
+            </div>
+        </section>
+
+
+        <!-- BLOC 3: NATIVE QUERY -->
+        <section class="content-block">
+            <span class="tag">SQL pur</span>
+            <h2>3. <span class="inline-code">@Query</span> amb SQL natiu</h2>
+
+            <p>Per a queries molt específiques de MySQL o quan JPQL no és suficient, podem escriure <strong>SQL pur</strong>:</p>
+
+            <pre data-lang="JAVA"><code>public interface ProductRepository extends JpaRepository&lt;Product, Long&gt; {
+
+    // SQL natiu: producte aleatori
+    @Query(value = "SELECT * FROM products ORDER BY RAND() LIMIT 1",
+           nativeQuery = true)
+    Optional&lt;Product&gt; findRandom();
+
+    // SQL natiu: top N més cars
+    @Query(value = "SELECT * FROM products ORDER BY price DESC LIMIT :limit",
+           nativeQuery = true)
+    List&lt;Product&gt; findTopExpensive(@Param("limit") int limit);
+
+    // SQL natiu: resum per categoria
+    @Query(value = "SELECT category, COUNT(*) as total, AVG(price) as avg_price " +
+                   "FROM products GROUP BY category",
+           nativeQuery = true)
+    List&lt;Object[]&gt; getCategorySummary();
+}</code></pre>
+
+            <h3>3.1 Quan usar cada tipus</h3>
+            <table class="comparison-table">
+                <tr><th>Tipus</th><th>Quan usar-lo</th><th>Exemple</th></tr>
+                <tr>
+                    <td><strong>Derived Method</strong></td>
+                    <td>Queries simples (1-2 condicions)</td>
+                    <td><code>findByCategory(c)</code></td>
+                </tr>
+                <tr>
+                    <td><strong>@Query JPQL</strong></td>
+                    <td>Queries complexes portàtils (funcionen amb qualsevol BBDD)</td>
+                    <td><code>@Query("SELECT p FROM Product p WHERE...")</code></td>
+                </tr>
+                <tr>
+                    <td><strong>@Query nativeQuery</strong></td>
+                    <td>Funcions específiques de MySQL (RAND, LIMIT, funcions pròpies)</td>
+                    <td><code>@Query(value="SELECT...", nativeQuery=true)</code></td>
+                </tr>
+            </table>
+
+            <div class="callout warning">
+                <span class="label" style="display:block; margin-bottom: 8px;">⚠️ nativeQuery = acoblament</span>
+                Les native queries utilitzen SQL específic de MySQL. Si canvies a PostgreSQL o Oracle, hauràs de reescriure-les. JPQL és més portable. Usa native queries <strong>només quan cal</strong>.
+            </div>
+        </section>
+
+
+        <!-- BLOC 4: UPDATE/DELETE amb @Query -->
+        <section class="content-block">
+            <span class="tag">Modificacions amb @Query</span>
+            <h2>4. UPDATE i DELETE amb <span class="inline-code">@Query</span></h2>
+
+            <p>Per defecte, <code>@Query</code> és per a SELECT. Per a UPDATE o DELETE, cal afegir <code>@Modifying</code>:</p>
+
+            <pre data-lang="JAVA"><code>public interface ProductRepository extends JpaRepository&lt;Product, Long&gt; {
+
+    // UPDATE amb JPQL
+    @Modifying
+    @Transactional
+    @Query("UPDATE Product p SET p.price = p.price * (1 - :percent / 100) WHERE p.category = :category")
+    int applyDiscount(@Param("category") String category,
+                      @Param("percent") Double percent);
+
+    // DELETE amb JPQL
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Product p WHERE p.stock = 0")
+    int deleteOutOfStock();
+
+    // UPDATE natiu
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE products SET stock = stock + :units WHERE id = :id",
+           nativeQuery = true)
+    int increaseStock(@Param("id") Long id, @Param("units") int units);
+}</code></pre>
+
+            <div class="callout">
+                <span class="label" style="display:block; margin-bottom: 8px;">Regla: @Modifying + @Transactional</span>
+                Qualsevol <code>@Query</code> que modifiqui dades (UPDATE/DELETE) necessita:<br>
+                <strong>1.</strong> <code>@Modifying</code> — indica que no és un SELECT<br>
+                <strong>2.</strong> <code>@Transactional</code> — les modificacions requereixen transacció
+            </div>
+        </section>
+
+
+        <!-- BLOC 5: COMPARATIVA FINAL -->
+        <section class="content-block">
+            <h2>5. Visió global: les 3 maneres de fer queries</h2>
+
+            <p>Fem la mateixa query ("productes de la categoria Fruita amb preu menor a 2€") de les 3 maneres:</p>
+
+            <pre data-lang="JAVA"><code>// 1️⃣ Derived Method (nom del mètode → SQL autogenerat)
+List&lt;Product&gt; findByCategoryAndPriceLessThan(String category, Double maxPrice);
+
+// 2️⃣ JPQL (query explícita orientada a objectes)
+@Query("SELECT p FROM Product p WHERE p.category = :cat AND p.price &lt; :max")
+List&lt;Product&gt; findCheapByCategory(@Param("cat") String category,
+                                    @Param("max") Double maxPrice);
+
+// 3️⃣ SQL natiu (SQL pur de MySQL)
+@Query(value = "SELECT * FROM products WHERE category = :cat AND price &lt; :max",
+       nativeQuery = true)
+List&lt;Product&gt; findCheapByCategoryNative(@Param("cat") String category,
+                                         @Param("max") Double maxPrice);</code></pre>
+
+            <div class="highlight-box">
+                <p style="font-size: 1.2rem; font-weight: 800; margin-bottom: 1rem;">Les tres generen el mateix SQL.</p>
+                <p>La diferència és quant de control necessites i quanta portabilitat vols.</p>
+                <p style="margin-bottom: 0;"><strong>Regla general:</strong> comença amb derived methods. Si no arribes, JPQL. Si JPQL no pot, SQL natiu.</p>
+            </div>
+        </section>
+
+
+        <!-- EXERCICI INTERACTIU -->
+        <section class="content-block" style="margin-top: 3rem;">
+            <h2>6. Completa el codi: pas a pas</h2>
+
+            <div class="code-step-block active" id="step1">
+                <h3>Pas 1: Derived Method</h3>
+                <p>Escriu el nom del mètode que busca productes amb stock major a un llindar, ordenats per stock ascendent:</p>
+                <pre data-lang="JAVA"><code>List&lt;Product&gt; <input type="text" id="ans1" class="code-input-inline" placeholder="???" style="width:380px;">(Integer minStock);</code></pre>
+            </div>
+
+            <div class="code-step-block" id="step2">
+                <h3 style="margin-top:2rem;">Pas 2: @Query JPQL</h3>
+                <p>Completa la query JPQL per obtenir el producte més car:</p>
+                <pre data-lang="JAVA"><code>@Query("SELECT p FROM Product p <input type="text" id="ans2" class="code-input-inline" placeholder="???" style="width:320px;">")
+Optional&lt;Product&gt; findMostExpensive();</code></pre>
+            </div>
+
+            <div class="code-step-block" id="step3">
+                <h3 style="margin-top:2rem;">Pas 3: Native Query</h3>
+                <p>Per usar SQL pur dins de @Query, quin paràmetre booleà cal afegir?</p>
+                <pre data-lang="JAVA"><code>@Query(value = "SELECT * FROM products ORDER BY RAND() LIMIT 1",
+       <input type="text" id="ans3" class="code-input-inline" placeholder="???" style="width:220px;">)
+Optional&lt;Product&gt; findRandom();</code></pre>
+            </div>
+        </section>
+
+
+        <!-- CHECKPOINT -->
+        <section class="checkpoint-card shadow-ambient">
+            <span class="label tag" style="background:var(--secondary); color:var(--primary);">Checkpoint</span>
+            <h2>Verifica el que has après</h2>
+
+            <p style="font-weight:800; color:var(--primary); margin-top:1rem;">Quin és l'error al mètode <code>findByPrceLessThan(Double max)</code>?</p>
+
+            <div style="margin-top:2rem;">
+                <button class="quiz-option" onclick="checkQuiz(this, false, 'q1')">A. No retorna un <code>Optional</code> i podria retornar null.</button>
+                <button class="quiz-option" onclick="checkQuiz(this, true, 'q1')">B. "Prce" no coincideix amb cap camp de l'entitat. Hauria de ser "Price". Spring fallarà a l'arrencada.</button>
+                <button class="quiz-option" onclick="checkQuiz(this, false, 'q1')">C. Falta l'anotació <code>@Query</code> per indicar el SQL.</button>
+            </div>
+            <div id="q1-feedback" class="feedback-area"></div>
+        </section>
+
+
+        <!-- RESUM FINAL DEL CURS -->
+        <section class="content-block" style="margin-top: 3rem; border-top: 4px solid var(--secondary);">
+            <h2>📋 Resum del curs complet</h2>
+
+            <table class="comparison-table">
+                <tr><th>Sessió</th><th>Eina</th><th>SQL</th><th>Control</th></tr>
+                <tr><td>S1</td><td>Cap (dades en memòria)</td><td>—</td><td>—</td></tr>
+                <tr><td>S2-S3</td><td>JdbcTemplate</td><td>100% manual</td><td>Total</td></tr>
+                <tr><td>S4</td><td>JpaRepository</td><td>0% (generat)</td><td>Mínim</td></tr>
+                <tr><td>S5</td><td>Derived + @Query</td><td>0%-100% (tu tries)</td><td>A la carta</td></tr>
+            </table>
+
+            <div class="diagram-block">
+                <strong style="color:var(--secondary);">Progressió del curs</strong><br><br>
+                ArrayList → <strong>JdbcTemplate</strong> → <strong>JpaRepository</strong> → <strong>@Query</strong><br>
+                <span style="font-size:0.85rem; color:var(--on-surface-muted);">
+                    max control ───────────────────────── max productivitat<br>
+                    max codi ──────────────────────────── min codi
+                </span>
+            </div>
+
+            <div class="callout" style="background-color: var(--surface); border: 2px dashed var(--primary);">
+                <span class="label" style="display:block; margin-bottom: 8px;">🎯 Capacitats adquirides</span>
+                Ara sou capaços de:<br>
+                ✅ Crear una API REST amb Spring Boot<br>
+                ✅ Connectar-la a MySQL<br>
+                ✅ Executar SQL natiu amb JdbcTemplate<br>
+                ✅ Usar un ORM per a CRUD automàtic<br>
+                ✅ Escriure queries personalitzades de 3 maneres<br>
+                ✅ Gestionar transaccions amb @Transactional
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        function checkQuiz(btn, isCorrect, quizId) {
+            const options = btn.parentElement.querySelectorAll('.quiz-option');
+            options.forEach(o => { o.style.pointerEvents = 'none'; o.classList.remove('correct', 'wrong'); });
+            const fb = document.getElementById(quizId + '-feedback');
+            fb.style.display = 'block';
+            if (isCorrect) {
+                btn.classList.add('correct');
+                fb.style.backgroundColor = "rgba(132, 204, 22, 0.1)";
+                fb.style.color = "var(--secondary-fixed)";
+                fb.innerHTML = "✅ Correcte! Spring parseja el nom del mètode i busca el camp <code>prce</code> a l'entitat <code>Product</code>. Com no existeix, l'aplicació <strong>falla a l'arrencada</strong>. Això és una protecció: no arribaràs mai a executar una query incorrecta.";
+            } else {
+                btn.classList.add('wrong');
+                fb.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+                fb.style.color = "var(--danger)";
+                fb.innerHTML = "❌ Fixa't bé en el nom del mètode: hi ha un typo al nom del camp.";
+                setTimeout(() => {
+                    options.forEach(o => { o.style.pointerEvents = 'auto'; o.classList.remove('wrong'); });
+                    fb.style.display = 'none';
+                }, 4000);
+            }
+        }
+
+        const inputsSeq = [
+            { id: 'ans1', expected: 'findByStockGreaterThanOrderByStockAsc', nextBlock: 'step2' },
+            { id: 'ans2', expected: 'ORDER BY p.price DESC LIMIT 1', nextBlock: 'step3', alt: 'WHERE p.price = (SELECT MAX(p2.price) FROM Product p2)' },
+            { id: 'ans3', expected: 'nativeQuery = true', nextBlock: null }
+        ];
+        inputsSeq.forEach((stepItem) => {
+            const inputEl = document.getElementById(stepItem.id);
+            inputEl.addEventListener('input', (e) => {
+                const val = e.target.value.trim().toLowerCase().replace(/\s+/g, '');
+                const expected = stepItem.expected.toLowerCase().replace(/\s+/g, '');
+                const altMatch = stepItem.alt ? val === stepItem.alt.toLowerCase().replace(/\s+/g, '') : false;
+                if (val === expected || altMatch) {
+                    e.target.classList.add('success');
+                    e.target.blur();
+                    e.target.closest('.code-step-block').classList.add('completed');
+                    if (stepItem.nextBlock) {
+                        const next = document.getElementById(stepItem.nextBlock);
+                        next.classList.add('active');
+                        setTimeout(() => next.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

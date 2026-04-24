@@ -1,0 +1,79 @@
+### ──────────────────────────────────
+### DERIVED QUERY METHODS
+### ──────────────────────────────────
+
+### Productes per categoria
+GET http://localhost:8080/api/products/category/Fruita
+Accept: application/json
+
+### Buscar per nom
+GET http://localhost:8080/api/products/search?name=poma
+Accept: application/json
+
+### Rang de preu
+GET http://localhost:8080/api/products/price-range?min=1&max=3
+Accept: application/json
+
+### Productes sense stock
+GET http://localhost:8080/api/products/out-of-stock
+Accept: application/json
+
+### Comptar per categoria
+GET http://localhost:8080/api/products/count/Lactis
+
+### Existeix per nom?
+GET http://localhost:8080/api/products/exists-name?name=Poma Golden
+
+### ──────────────────────────────────
+### @QUERY JPQL
+### ──────────────────────────────────
+
+### Productes per sobre de la mitjana
+GET http://localhost:8080/api/products/above-average
+Accept: application/json
+
+### Top categories
+GET http://localhost:8080/api/products/top-categories
+Accept: application/json
+
+### Buscar per descripció
+GET http://localhost:8080/api/products/search-desc?keyword=fresc
+Accept: application/json
+
+### Categories úniques
+GET http://localhost:8080/api/products/categories
+Accept: application/json
+
+### Productes amb stock baix (llindar: 60)
+GET http://localhost:8080/api/products/low-stock?threshold=60
+Accept: application/json
+
+### ──────────────────────────────────
+### NATIVE QUERIES
+### ──────────────────────────────────
+
+### Producte aleatori
+GET http://localhost:8080/api/products/random
+Accept: application/json
+
+### Top 5 més cars
+GET http://localhost:8080/api/products/top-expensive?limit=5
+Accept: application/json
+
+### Resum per categoria
+GET http://localhost:8080/api/products/category-summary
+Accept: application/json
+
+### ──────────────────────────────────
+### @MODIFYING
+### ──────────────────────────────────
+
+### Incrementar preus de Begudes en un 5%
+PUT http://localhost:8080/api/products/increase-price?category=Begudes
+
+### Verificar preus de Begudes
+GET http://localhost:8080/api/products/category/Begudes
+Accept: application/json
+
+### Resetar stock de tot a 100
+PUT http://localhost:8080/api/products/reset-stock
