@@ -1,0 +1,35 @@
+### Llistar tots els productes
+GET http://localhost:8080/api/products
+Accept: application/json
+
+### Obtenir producte per ID
+GET http://localhost:8080/api/products/1
+Accept: application/json
+
+### Producte inexistent (esperar 404)
+GET http://localhost:8080/api/products/999
+Accept: application/json
+
+### Buscar per nom (parcial)
+GET http://localhost:8080/api/products/search?name=poma
+Accept: application/json
+
+### Comptar productes
+GET http://localhost:8080/api/products/count
+Accept: application/json
+
+### Productes per categoria
+GET http://localhost:8080/api/products/category/Fruita
+Accept: application/json
+
+### Productes per categoria (Lactis)
+GET http://localhost:8080/api/products/category/Lactis
+Accept: application/json
+
+### Filtrar per categoria i preu màxim
+GET http://localhost:8080/api/products/filter?category=Fruita&maxPrice=1.50
+Accept: application/json
+
+### Estadístiques
+GET http://localhost:8080/api/products/stats
+Accept: application/json

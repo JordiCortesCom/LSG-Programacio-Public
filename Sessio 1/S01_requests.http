@@ -1,0 +1,37 @@
+### Llistar tots els productes
+GET http://localhost:8080/api/products
+Accept: application/json
+
+### Obtenir producte per ID
+GET http://localhost:8080/api/products/1
+Accept: application/json
+
+### Obtenir producte per ID (un altre)
+GET http://localhost:8080/api/products/3
+Accept: application/json
+
+### Crear un producte nou
+POST http://localhost:8080/api/products
+Content-Type: application/json
+
+{
+  "name": "Oli d'Oliva",
+  "price": 4.75,
+  "description": "Oli verge extra 1L",
+  "category": "Condiments"
+}
+
+### Eliminar un producte
+DELETE http://localhost:8080/api/products/2
+
+### Producte inexistent (hauria de retornar 404)
+GET http://localhost:8080/api/products/999
+Accept: application/json
+
+### Verificar que s'ha eliminat (hauria de retornar 404)
+GET http://localhost:8080/api/products/2
+Accept: application/json
+
+### Llistar tots després de les operacions
+GET http://localhost:8080/api/products
+Accept: application/json

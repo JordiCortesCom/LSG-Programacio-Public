@@ -1,0 +1,87 @@
+### Llistar tots els productes
+GET http://localhost:8080/api/products
+Accept: application/json
+
+### Obtenir producte per ID
+GET http://localhost:8080/api/products/1
+Accept: application/json
+
+### ──────────────────────────────────
+### OPERACIONS D'ESCRIPTURA
+### ──────────────────────────────────
+
+### Crear un producte nou
+POST http://localhost:8080/api/products
+Content-Type: application/json
+
+{
+  "name": "Nous pelades",
+  "price": 7.50,
+  "description": "Nous pelades naturals 250g",
+  "category": "Snacks",
+  "stock": 60
+}
+
+### Crear un altre producte
+POST http://localhost:8080/api/products
+Content-Type: application/json
+
+{
+  "name": "Galetes d'Avena",
+  "price": 2.10,
+  "description": "Galetes integrals d'avena 200g",
+  "category": "Snacks",
+  "stock": 95
+}
+
+### Actualitzar producte 1
+PUT http://localhost:8080/api/products/1
+Content-Type: application/json
+
+{
+  "name": "Poma Golden Premium",
+  "price": 1.50,
+  "description": "Poma dolça premium d'origen espanyol",
+  "category": "Fruita",
+  "stock": 120
+}
+
+### Actualitzar producte inexistent (esperar 404)
+PUT http://localhost:8080/api/products/999
+Content-Type: application/json
+
+{
+  "name": "Fantasma",
+  "price": 0.0,
+  "description": "No existeixo",
+  "category": "Res",
+  "stock": 0
+}
+
+### Eliminar producte 5
+DELETE http://localhost:8080/api/products/5
+
+### Eliminar producte inexistent (esperar 404)
+DELETE http://localhost:8080/api/products/999
+
+### ──────────────────────────────────
+### TRANSACCIONS
+### ──────────────────────────────────
+
+### Transferir 10 unitats de stock del producte 1 al 2
+POST http://localhost:8080/api/products/transfer-stock?from=1&to=2&units=10
+
+### Verificar stock del producte 1 (hauria de ser 10 menys)
+GET http://localhost:8080/api/products/1
+Accept: application/json
+
+### Verificar stock del producte 2 (hauria de ser 10 més)
+GET http://localhost:8080/api/products/2
+Accept: application/json
+
+### Transferir stock impossible (més del disponible) — hauria de fallar
+POST http://localhost:8080/api/products/transfer-stock?from=1&to=2&units=99999
+
+### Verificar que el producte 1 no ha canviat (rollback)
+GET http://localhost:8080/api/products/1
+Accept: application/json

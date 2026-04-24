@@ -1,0 +1,93 @@
+### ──────────────────────────────────
+### LECTURA (CRUD automàtic JPA)
+### ──────────────────────────────────
+
+### Llistar tots els productes
+GET http://localhost:8080/api/products
+Accept: application/json
+
+### Obtenir producte per ID
+GET http://localhost:8080/api/products/1
+Accept: application/json
+
+### Producte inexistent (esperar 404)
+GET http://localhost:8080/api/products/999
+Accept: application/json
+
+### Comptar productes
+GET http://localhost:8080/api/products/count
+
+### Existeix producte 1?
+GET http://localhost:8080/api/products/1/exists
+
+### Existeix producte 999?
+GET http://localhost:8080/api/products/999/exists
+
+### Ordenar per preu ascendent
+GET http://localhost:8080/api/products/sorted?by=price&dir=ASC
+Accept: application/json
+
+### Ordenar per nom descendent
+GET http://localhost:8080/api/products/sorted?by=name&dir=DESC
+Accept: application/json
+
+### ──────────────────────────────────
+### ESCRIPTURA (CRUD automàtic JPA)
+### ──────────────────────────────────
+
+### Crear producte (INSERT)
+POST http://localhost:8080/api/products
+Content-Type: application/json
+
+{
+  "name": "Maduixes del Maresme",
+  "price": 3.50,
+  "description": "Maduixes fresques ecològiques 500g",
+  "category": "Fruita",
+  "stock": 45
+}
+
+### Actualitzar producte 1 (UPDATE via save)
+PUT http://localhost:8080/api/products/1
+Content-Type: application/json
+
+{
+  "name": "Poma Golden ECO",
+  "price": 1.80,
+  "description": "Poma ecològica certificada",
+  "category": "Fruita",
+  "stock": 100
+}
+
+### Eliminar producte
+DELETE http://localhost:8080/api/products/5
+
+### Verificar eliminació
+GET http://localhost:8080/api/products/5
+Accept: application/json
+
+### ──────────────────────────────────
+### CATEGORIES (Exercici 4)
+### ──────────────────────────────────
+
+### Crear categoria
+POST http://localhost:8080/api/categories
+Content-Type: application/json
+
+{
+  "name": "Fruita",
+  "description": "Fruites fresques de temporada"
+}
+
+### Crear altra categoria
+POST http://localhost:8080/api/categories
+Content-Type: application/json
+
+{
+  "name": "Verdura",
+  "description": "Verdures de proximitat"
+}
+
+### Llistar categories
+GET http://localhost:8080/api/categories
+Accept: application/json
