@@ -1,3 +1,4 @@
+
 -- Creació de la BBDD i l'usuari
 CREATE DATABASE IF NOT EXISTS products_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE products_db;
