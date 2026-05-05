@@ -1,44 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ca">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sessió 2: JdbcTemplate — Connexió i SELECT</title>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&family=Fira+Code&display=swap" rel="stylesheet">
-    <link rel='stylesheet' href='../styles.css'>
-</head>
-<body class='page-session'>
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&family=Fira+Code&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body class="page-session">
     <div class="container">
+      <!-- HERO -->
+      <header class="hero-section">
+        <div class="hero-text">
+          <span class="label badge">Spring Boot · Sessió 2</span>
+          <h1>JdbcTemplate: Connexió i SELECT</h1>
+          <p style="font-size: 1.3rem">
+            Connectem l'aplicació a MySQL i executem SQL natiu. Veureu cada
+            query que s'executa, amb el control total del SQL però sense el
+            boilerplate de gestionar connexions.
+          </p>
+        </div>
+        <div class="hero-glass-card shadow-ambient">
+          <h3 class="label">Punts Clau de la Sessió</h3>
+          <ul class="scholarly-list">
+            <li>
+              <span>🔌</span> Configurar la connexió a MySQL des de
+              <code>application.properties</code>.
+            </li>
+            <li>
+              <span>📋</span> Executar queries SELECT amb
+              <code>JdbcTemplate</code>.
+            </li>
+            <li>
+              <span>🔄</span> Mapejar files de la BBDD a objectes Java amb
+              <code>RowMapper</code>.
+            </li>
+            <li>
+              <span>🛡️</span> Entendre per què els paràmetres
+              <code>?</code> protegeixen de SQL Injection.
+            </li>
+          </ul>
+        </div>
+      </header>
 
-        <!-- HERO -->
-        <header class="hero-section">
-            <div class="hero-text">
-                <span class="label badge">Spring Boot · Sessió 2</span>
-                <h1>JdbcTemplate: Connexió i SELECT</h1>
-                <p style="font-size:1.3rem;">Connectem l'aplicació a MySQL i executem SQL natiu. Veureu cada query que s'executa, amb el control total del SQL però sense el boilerplate de gestionar connexions.</p>
-            </div>
-            <div class="hero-glass-card shadow-ambient">
-                <h3 class="label">Punts Clau de la Sessió</h3>
-                <ul class="scholarly-list">
-                    <li><span>🔌</span> Configurar la connexió a MySQL des de <code>application.properties</code>.</li>
-                    <li><span>📋</span> Executar queries SELECT amb <code>JdbcTemplate</code>.</li>
-                    <li><span>🔄</span> Mapejar files de la BBDD a objectes Java amb <code>RowMapper</code>.</li>
-                    <li><span>🛡️</span> Entendre per què els paràmetres <code>?</code> protegeixen de SQL Injection.</li>
-                </ul>
-            </div>
-        </header>
+      <!-- BLOC 1: CONFIGURACIÓ -->
+      <section class="content-block">
+        <span class="tag">Configuració</span>
+        <h2>1. Connectar Spring Boot a MySQL</h2>
 
+        <p>
+          A la Sessió 1, les dades vivien en una <code>ArrayList</code> en
+          memòria. Ara connectem a una base de dades real. Spring Boot necessita
+          dues coses: <strong>dependències</strong> i
+          <strong>configuració</strong>.
+        </p>
 
-        <!-- BLOC 1: CONFIGURACIÓ -->
-        <section class="content-block">
-            <span class="tag">Configuració</span>
-            <h2>1. Connectar Spring Boot a MySQL</h2>
-
-            <p>A la Sessió 1, les dades vivien en una <code>ArrayList</code> en memòria. Ara connectem a una base de dades real. Spring Boot necessita dues coses: <strong>dependències</strong> i <strong>configuració</strong>.</p>
-
-            <h3>1.1 Dependències al <span class="inline-code">pom.xml</span></h3>
-            <pre data-lang="XML"><code>&lt;!-- Dóna accés a JdbcTemplate --&gt;
+        <h3>1.1 Dependències al <span class="inline-code">pom.xml</span></h3>
+        <pre data-lang="XML"><code>&lt;!-- Dóna accés a JdbcTemplate --&gt;
 &lt;dependency&gt;
     &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
     &lt;artifactId&gt;spring-boot-starter-jdbc&lt;/artifactId&gt;
@@ -51,50 +72,85 @@
     &lt;scope&gt;runtime&lt;/scope&gt;
 &lt;/dependency&gt;</code></pre>
 
-            <h3>1.2 Configuració a <span class="inline-code">application.properties</span></h3>
-            <pre data-lang="PROPERTIES"><code># Connexió a MySQL
+        <h3>
+          1.2 Configuració a
+          <span class="inline-code">application.properties</span>
+        </h3>
+        <pre data-lang="PROPERTIES"><code># Connexió a MySQL
 spring.datasource.url=jdbc:mysql://localhost:3306/products_db
 spring.datasource.username=root
 spring.datasource.password=1234
 
 # El driver es detecta automàticament a partir de la URL</code></pre>
 
-            <div class="callout">
-                <span class="label" style="display:block; margin-bottom: 8px;">Què passa per darrere?</span>
-                Amb aquestes 3 línies, Spring Boot crea automàticament un <strong>pool de connexions</strong> (HikariCP): un conjunt de connexions pre-obertes a MySQL que es reutilitzen. Tu no obres ni tanques connexions mai.
+        <div class="callout">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >Què passa per darrere?</span
+          >
+          Amb aquestes 3 línies, Spring Boot crea automàticament un
+          <strong>pool de connexions</strong> (HikariCP): un conjunt de
+          connexions pre-obertes a MySQL que es reutilitzen. Tu no obres ni
+          tanques connexions mai.
+        </div>
+
+        <h3>1.3 Preparar la BBDD</h3>
+        <p>
+          Abans d'arrencar l'aplicació, executeu el
+          <span class="inline-code">products_db.sql</span> a MySQL Workbench per
+          crear la taula i les dades inicials.
+        </p>
+      </section>
+
+      <!-- BLOC 2: QUÈ ÉS JDBCTEMPLATE -->
+      <section class="content-block">
+        <span class="tag">Concepte clau</span>
+        <h2>2. Què és JdbcTemplate?</h2>
+
+        <div
+          class="flashcard-wrapper"
+          onclick="this.classList.toggle('flipped')"
+        >
+          <div class="flashcard-inner">
+            <div class="fc-face fc-front">
+              <div class="fc-icon">🔧</div>
+              <h3>JDBC vs JdbcTemplate</h3>
+              <span
+                style="
+                  font-size: 0.8rem;
+                  opacity: 0.7;
+                  margin-top: 10px;
+                  text-transform: uppercase;
+                "
+                >Clica per comparar</span
+              >
             </div>
-
-            <h3>1.3 Preparar la BBDD</h3>
-            <p>Abans d'arrencar l'aplicació, executeu el <span class="inline-code">products_db.sql</span> a MySQL Workbench per crear la taula i les dades inicials.</p>
-        </section>
-
-
-        <!-- BLOC 2: QUÈ ÉS JDBCTEMPLATE -->
-        <section class="content-block">
-            <span class="tag">Concepte clau</span>
-            <h2>2. Què és JdbcTemplate?</h2>
-
-            <div class="flashcard-wrapper" onclick="this.classList.toggle('flipped')">
-                <div class="flashcard-inner">
-                    <div class="fc-face fc-front">
-                        <div class="fc-icon">🔧</div>
-                        <h3>JDBC vs JdbcTemplate</h3>
-                        <span style="font-size:0.8rem; opacity:0.7; margin-top:10px; text-transform:uppercase;">Clica per comparar</span>
-                    </div>
-                    <div class="fc-face fc-back">
-                        <p><strong>JDBC</strong> (java.sql): tu obres connexió, crees Statement, iteres ResultSet, tanques tot.<br><br><strong>JdbcTemplate</strong>: tu escrius el SQL i el mapeig. Spring fa la resta.</p>
-                    </div>
-                </div>
+            <div class="fc-face fc-back">
+              <p>
+                <strong>JDBC</strong> (java.sql): tu obres connexió, crees
+                Statement, iteres ResultSet, tanques tot.<br /><br /><strong
+                  >JdbcTemplate</strong
+                >: tu escrius el SQL i el mapeig. Spring fa la resta.
+              </p>
             </div>
+          </div>
+        </div>
 
-            <p><span class="inline-code">JdbcTemplate</span> és una classe de Spring que simplifica l'execució de SQL. Tu escrius el SQL exacte que vols executar, i Spring gestiona la connexió, l'execució i el tancament de recursos.</p>
+        <p>
+          <span class="inline-code">JdbcTemplate</span> és una classe de Spring
+          que simplifica l'execució de SQL. Tu escrius el SQL exacte que vols
+          executar, i Spring gestiona la connexió, l'execució i el tancament de
+          recursos.
+        </p>
 
-            <p>Penseu-hi com un <strong>assistent</strong>: tu li dius "executa aquest SQL i transforma cada fila en un objecte Product", i ell ho fa.</p>
+        <p>
+          Penseu-hi com un <strong>assistent</strong>: tu li dius "executa
+          aquest SQL i transforma cada fila en un objecte Product", i ell ho fa.
+        </p>
 
-            <div class="vs-block">
-                <div>
-                    <h4 style="color:var(--danger);">❌ Sense Spring (JDBC pur)</h4>
-                    <pre data-lang="JAVA"><code>Connection conn = null;
+        <div class="vs-block">
+          <div>
+            <h4 style="color: var(--danger)">❌ Sense Spring (JDBC pur)</h4>
+            <pre data-lang="JAVA"><code>Connection conn = null;
 Statement stmt = null;
 ResultSet rs = null;
 try {
@@ -112,10 +168,10 @@ try {
     // Tancar rs, stmt, conn...
     // (si no, memory leak!)
 }</code></pre>
-                </div>
-                <div>
-                    <h4 style="color:var(--secondary-fixed);">✅ Amb JdbcTemplate</h4>
-                    <pre data-lang="JAVA"><code>List&lt;Product&gt; products = 
+          </div>
+          <div>
+            <h4 style="color: var(--secondary-fixed)">✅ Amb JdbcTemplate</h4>
+            <pre data-lang="JAVA"><code>List&lt;Product&gt; products = 
     jdbc.query(
         "SELECT * FROM products",
         (rs, rowNum) -&gt; new Product(
@@ -131,25 +187,33 @@ try {
 
 // Ja està. Connexió gestionada.
 // Recursos tancats. Errors gestionats.</code></pre>
-                </div>
-            </div>
+          </div>
+        </div>
 
-            <div class="callout tip">
-                <span class="label" style="display:block; margin-bottom: 8px;">💡 Observa</span>
-                El SQL és <strong>idèntic</strong> en ambdós casos. La diferència és tot el que l'envolta: connexions, try/catch, tancament. JdbcTemplate elimina tot això.
-            </div>
-        </section>
+        <div class="callout tip">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >💡 Observa</span
+          >
+          El SQL és <strong>idèntic</strong> en ambdós casos. La diferència és
+          tot el que l'envolta: connexions, try/catch, tancament. JdbcTemplate
+          elimina tot això.
+        </div>
+      </section>
 
+      <!-- BLOC 3: REPOSITORI AMB JDBCTEMPLATE -->
+      <section class="content-block">
+        <span class="tag">Codi en viu</span>
+        <h2>
+          3. El Repositori: <span class="inline-code">ProductRepository</span>
+        </h2>
 
-        <!-- BLOC 3: REPOSITORI AMB JDBCTEMPLATE -->
-        <section class="content-block">
-            <span class="tag">Codi en viu</span>
-            <h2>3. El Repositori: <span class="inline-code">ProductRepository</span></h2>
+        <p>
+          Substituïm la llista en memòria de la Sessió 1 per una classe que
+          parla amb MySQL.
+        </p>
 
-            <p>Substituïm la llista en memòria de la Sessió 1 per una classe que parla amb MySQL.</p>
-
-            <h3>3.1 Estructura bàsica</h3>
-            <pre data-lang="JAVA"><code>package com.curs.products.repository;
+        <h3>3.1 Estructura bàsica</h3>
+        <pre data-lang="JAVA"><code>package com.curs.products.repository;
 
 import com.curs.products.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,13 +229,19 @@ public class ProductRepository {
     private JdbcTemplate jdbc;  // ← Spring configura i injecta automàticament
 }</code></pre>
 
-            <div class="callout">
-                <span class="label" style="display:block; margin-bottom: 8px;">D'on surt el JdbcTemplate?</span>
-                Spring Boot el crea automàticament quan detecta les dependències <code>spring-boot-starter-jdbc</code> + un driver de BBDD al <code>pom.xml</code> i la configuració a <code>application.properties</code>. Tu no el crees: li demanes amb <code>@Autowired</code>.
-            </div>
+        <div class="callout">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >D'on surt el JdbcTemplate?</span
+          >
+          Spring Boot el crea automàticament quan detecta les dependències
+          <code>spring-boot-starter-jdbc</code> + un driver de BBDD al
+          <code>pom.xml</code> i la configuració a
+          <code>application.properties</code>. Tu no el crees: li demanes amb
+          <code>@Autowired</code>.
+        </div>
 
-            <h3>3.2 SELECT tots els productes</h3>
-            <pre data-lang="JAVA"><code>public List&lt;Product&gt; findAll() {
+        <h3>3.2 SELECT tots els productes</h3>
+        <pre data-lang="JAVA"><code>public List&lt;Product&gt; findAll() {
     String sql = "SELECT * FROM products";
 
     return jdbc.query(sql, (rs, rowNum) -&gt; new Product(
@@ -184,10 +254,17 @@ public class ProductRepository {
     ));
 }</code></pre>
 
-            <p>El segon paràmetre de <span class="inline-code">jdbc.query()</span> és un <strong>RowMapper</strong>: una funció que transforma una fila del <code>ResultSet</code> en un objecte Java. Amb una lambda és molt concís.</p>
+        <p>
+          El segon paràmetre de <span class="inline-code">jdbc.query()</span> és
+          un <strong>RowMapper</strong>: una funció que transforma una fila del
+          <code>ResultSet</code> en un objecte Java. Amb una lambda és molt
+          concís.
+        </p>
 
-            <h3>3.3 SELECT per ID</h3>
-            <pre data-lang="JAVA"><code>public Optional&lt;Product&gt; findById(Long id) {
+        <h3>3.3 SELECT per ID</h3>
+        <pre
+          data-lang="JAVA"
+        ><code>public Optional&lt;Product&gt; findById(Long id) {
     String sql = "SELECT * FROM products WHERE id = ?";
 
     List&lt;Product&gt; results = jdbc.query(sql, (rs, rowNum) -&gt; new Product(
@@ -202,20 +279,28 @@ public class ProductRepository {
     return results.stream().findFirst();
 }</code></pre>
 
-            <div class="callout warning">
-                <span class="label" style="display:block; margin-bottom: 8px;">⚠️ Per què <code>?</code> i no concatenar?</span>
-                <strong>Mai</strong> concateneu valors directament a la query:
-                <pre data-lang="JAVA" style="margin-top: 1rem;"><code>// ❌ PERILL: SQL Injection
+        <div class="callout warning">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >⚠️ Per què <code>?</code> i no concatenar?</span
+          >
+          <strong>Mai</strong> concateneu valors directament a la query:
+          <pre
+            data-lang="JAVA"
+            style="margin-top: 1rem"
+          ><code>// ❌ PERILL: SQL Injection
 String sql = "SELECT * FROM products WHERE id = " + id;
 
 // ✅ SEGUR: Paràmetre ?
 String sql = "SELECT * FROM products WHERE id = ?";
 jdbc.query(sql, mapper, id);</code></pre>
-                Amb <code>?</code>, el driver de MySQL escapa el valor automàticament. Un atacant no pot injectar SQL maliciós.
-            </div>
+          Amb <code>?</code>, el driver de MySQL escapa el valor automàticament.
+          Un atacant no pot injectar SQL maliciós.
+        </div>
 
-            <h3>3.4 SELECT amb filtre per nom</h3>
-            <pre data-lang="JAVA"><code>public List&lt;Product&gt; findByNameContaining(String keyword) {
+        <h3>3.4 SELECT amb filtre per nom</h3>
+        <pre
+          data-lang="JAVA"
+        ><code>public List&lt;Product&gt; findByNameContaining(String keyword) {
     String sql = "SELECT * FROM products WHERE name LIKE ?";
 
     return jdbc.query(sql, (rs, rowNum) -&gt; new Product(
@@ -228,9 +313,11 @@ jdbc.query(sql, mapper, id);</code></pre>
     ), "%" + keyword + "%");    // ← els % van al valor, no al SQL
 }</code></pre>
 
-            <h3>3.5 SELECT amb <span class="inline-code">queryForObject</span></h3>
-            <p>Per a queries que retornen un sol valor escalar (un número, un text):</p>
-            <pre data-lang="JAVA"><code>// Comptar productes
+        <h3>3.5 SELECT amb <span class="inline-code">queryForObject</span></h3>
+        <p>
+          Per a queries que retornen un sol valor escalar (un número, un text):
+        </p>
+        <pre data-lang="JAVA"><code>// Comptar productes
 public int count() {
     String sql = "SELECT COUNT(*) FROM products";
     return jdbc.queryForObject(sql, Integer.class);
@@ -241,17 +328,19 @@ public Double averagePrice() {
     String sql = "SELECT AVG(price) FROM products";
     return jdbc.queryForObject(sql, Double.class);
 }</code></pre>
-        </section>
+      </section>
 
+      <!-- BLOC 4: REUTILITZAR EL ROWMAPPER -->
+      <section class="content-block">
+        <span class="tag">Bones pràctiques</span>
+        <h2>4. Extreure el RowMapper</h2>
 
-        <!-- BLOC 4: REUTILITZAR EL ROWMAPPER -->
-        <section class="content-block">
-            <span class="tag">Bones pràctiques</span>
-            <h2>4. Extreure el RowMapper</h2>
+        <p>
+          Heu notat que el mateix lambda de mapeig es repeteix a cada mètode? El
+          podem extreure com a atribut de la classe:
+        </p>
 
-            <p>Heu notat que el mateix lambda de mapeig es repeteix a cada mètode? El podem extreure com a atribut de la classe:</p>
-
-            <pre data-lang="JAVA"><code>@Repository
+        <pre data-lang="JAVA"><code>@Repository
 public class ProductRepository {
 
     @Autowired
@@ -286,20 +375,27 @@ public class ProductRepository {
     }
 }</code></pre>
 
-            <div class="callout tip">
-                <span class="label" style="display:block; margin-bottom: 8px;">💡 Principi DRY</span>
-                <strong>Don't Repeat Yourself.</strong> El RowMapper definit com a atribut es reutilitza a tots els mètodes. Si afegim un camp a la taula, només cal tocar un lloc.
-            </div>
-        </section>
+        <div class="callout tip">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >💡 Principi DRY</span
+          >
+          <strong>Don't Repeat Yourself.</strong> El RowMapper definit com a
+          atribut es reutilitza a tots els mètodes. Si afegim un camp a la
+          taula, només cal tocar un lloc.
+        </div>
+      </section>
 
+      <!-- BLOC 5: CONNECTAR CAPES -->
+      <section class="content-block">
+        <h2>5. Connectar les 3 capes</h2>
 
-        <!-- BLOC 5: CONNECTAR CAPES -->
-        <section class="content-block">
-            <h2>5. Connectar les 3 capes</h2>
+        <p>
+          El <span class="inline-code">ProductService</span> ara crida al
+          <span class="inline-code">ProductRepository</span> en comptes d'usar
+          la llista en memòria:
+        </p>
 
-            <p>El <span class="inline-code">ProductService</span> ara crida al <span class="inline-code">ProductRepository</span> en comptes d'usar la llista en memòria:</p>
-
-            <pre data-lang="JAVA"><code>@Service
+        <pre data-lang="JAVA"><code>@Service
 public class ProductService {
 
     @Autowired
@@ -322,147 +418,261 @@ public class ProductService {
     }
 }</code></pre>
 
-            <div class="diagram-block">
-                <strong style="color:var(--secondary);">Flux complet (amb BBDD real)</strong><br><br>
-                Client HTTP → <strong>@RestController</strong> → <strong>@Service</strong> → <strong>@Repository</strong><br>
-                │<br>
-                ▼<br>
-                JdbcTemplate → <strong>MySQL</strong> (products_db)<br><br>
-                <span style="font-size: 0.85rem; color: var(--on-surface-muted);">El Controller i el Service <em>no canvien</em> respecte a la S1.<br>Només hem substituït la font de dades.</span>
-            </div>
-        </section>
+        <div class="diagram-block">
+          <strong style="color: var(--secondary)"
+            >Flux complet (amb BBDD real)</strong
+          ><br /><br />
+          Client HTTP → <strong>@RestController</strong> →
+          <strong>@Service</strong> → <strong>@Repository</strong><br />
+          │<br />
+          ▼<br />
+          JdbcTemplate → <strong>MySQL</strong> (products_db)<br /><br />
+          <span style="font-size: 0.85rem; color: var(--on-surface-muted)"
+            >El Controller i el Service <em>no canvien</em> respecte a la S1.<br />Només
+            hem substituït la font de dades.</span
+          >
+        </div>
+      </section>
 
+      <!-- EXERCICI INTERACTIU -->
+      <section class="content-block" style="margin-top: 3rem">
+        <h2>6. Completa el codi: pas a pas</h2>
+        <p>
+          Construïm un mètode que busca productes per categoria i preu màxim.
+        </p>
 
-        <!-- EXERCICI INTERACTIU -->
-        <section class="content-block" style="margin-top: 3rem;">
-            <h2>6. Completa el codi: pas a pas</h2>
-            <p>Construïm un mètode que busca productes per categoria i preu màxim.</p>
-
-            <div class="code-step-block active" id="step1">
-                <h3>Pas 1: Escriure el SQL</h3>
-                <p>Quina clàusula SQL filtra per dues condicions simultàniament?</p>
-                <pre data-lang="JAVA"><code>public List&lt;Product&gt; findByCategoryAndMaxPrice(String category, Double maxPrice) {
+        <div class="code-step-block active" id="step1">
+          <h3>Pas 1: Escriure el SQL</h3>
+          <p>Quina clàusula SQL filtra per dues condicions simultàniament?</p>
+          <pre
+            data-lang="JAVA"
+          ><code>public List&lt;Product&gt; findByCategoryAndMaxPrice(String category, Double maxPrice) {
     String sql = "SELECT * FROM products WHERE category = ? <input type="text" id="ans1" class="code-input-inline" placeholder="???" style="width:80px;"> price &lt;= ?";
     return jdbc.query(sql, productMapper, category, maxPrice);
 }</code></pre>
-            </div>
+        </div>
 
-            <div class="code-step-block" id="step2">
-                <h3 style="margin-top:2rem;">Pas 2: L'endpoint</h3>
-                <p>Quina anotació de paràmetre fa servir Spring per llegir <code>?category=Fruita&maxPrice=2.0</code> de la URL?</p>
-                <pre data-lang="JAVA"><code>@GetMapping("/filter")
+        <div class="code-step-block" id="step2">
+          <h3 style="margin-top: 2rem">Pas 2: L'endpoint</h3>
+          <p>
+            Quina anotació de paràmetre fa servir Spring per llegir
+            <code>?category=Fruita&maxPrice=2.0</code> de la URL?
+          </p>
+          <pre data-lang="JAVA"><code>@GetMapping("/filter")
 public List&lt;Product&gt; filter(
         <input type="text" id="ans2" class="code-input-inline" placeholder="???"> String category,
         @RequestParam Double maxPrice) {
     return productService.findByCategoryAndMaxPrice(category, maxPrice);
 }</code></pre>
-            </div>
+        </div>
 
-            <div class="code-step-block" id="step3">
-                <h3 style="margin-top:2rem;">Pas 3: La petició HTTP</h3>
-                <p>Escriu la petició per buscar productes de la categoria "Fruita" amb preu màxim 1.50€:</p>
-                <pre data-lang="HTTP"><code>### Filtrar per categoria i preu
+        <div class="code-step-block" id="step3">
+          <h3 style="margin-top: 2rem">Pas 3: La petició HTTP</h3>
+          <p>
+            Escriu la petició per buscar productes de la categoria "Fruita" amb
+            preu màxim 1.50€:
+          </p>
+          <pre data-lang="HTTP"><code>### Filtrar per categoria i preu
 GET http://localhost:8080/api/products/filter?category=<input type="text" id="ans3" class="code-input-inline" placeholder="???" style="width:120px;">&maxPrice=1.50
 Accept: application/json</code></pre>
-            </div>
-        </section>
+        </div>
+      </section>
 
+      <!-- CHECKPOINT -->
+      <section class="checkpoint-card shadow-ambient" id="quiz1">
+        <span
+          class="label tag"
+          style="background: var(--secondary); color: var(--primary)"
+          >Checkpoint</span
+        >
+        <h2>Verifica el que has après</h2>
 
-        <!-- CHECKPOINT -->
-        <section class="checkpoint-card shadow-ambient" id="quiz1">
-            <span class="label tag" style="background:var(--secondary); color:var(--primary);">Checkpoint</span>
-            <h2>Verifica el que has après</h2>
+        <p style="font-weight: 800; color: var(--primary); margin-top: 1rem">
+          Quin mètode de JdbcTemplate faries servir per executar
+          <code>SELECT MAX(price) FROM products</code>?
+        </p>
 
-            <p style="font-weight:800; color:var(--primary); margin-top:1rem;">Quin mètode de JdbcTemplate faries servir per executar <code>SELECT MAX(price) FROM products</code>?</p>
+        <div style="margin-top: 2rem">
+          <button class="quiz-option" onclick="checkQuiz(this, false, 'q1')">
+            A. <code>jdbc.query()</code> — retorna una llista d'objectes.
+          </button>
+          <button class="quiz-option" onclick="checkQuiz(this, true, 'q1')">
+            B. <code>jdbc.queryForObject()</code> — retorna un sol valor.
+          </button>
+          <button class="quiz-option" onclick="checkQuiz(this, false, 'q1')">
+            C. <code>jdbc.update()</code> — per a operacions que modifiquen
+            dades.
+          </button>
+        </div>
+        <div id="q1-feedback" class="feedback-area"></div>
+      </section>
 
-            <div style="margin-top:2rem;">
-                <button class="quiz-option" onclick="checkQuiz(this, false, 'q1')">A. <code>jdbc.query()</code> — retorna una llista d'objectes.</button>
-                <button class="quiz-option" onclick="checkQuiz(this, true, 'q1')">B. <code>jdbc.queryForObject()</code> — retorna un sol valor.</button>
-                <button class="quiz-option" onclick="checkQuiz(this, false, 'q1')">C. <code>jdbc.update()</code> — per a operacions que modifiquen dades.</button>
-            </div>
-            <div id="q1-feedback" class="feedback-area"></div>
-        </section>
+      <section
+        class="checkpoint-card shadow-ambient"
+        id="quiz2"
+        style="margin-top: 2rem"
+      >
+        <p style="font-weight: 800; color: var(--primary)">
+          Si escrius
+          <span class="inline-code"
+            >jdbc.query("SELECT * FROM products WHERE name = '" + userInput +
+            "'")</span
+          >, un usuari podria enviar <code>' OR '1'='1</code> com a
+          <code>userInput</code>. Què passaria?
+        </p>
 
-        <section class="checkpoint-card shadow-ambient" id="quiz2" style="margin-top: 2rem;">
-            <p style="font-weight:800; color:var(--primary);">Si escrius <span class="inline-code">jdbc.query("SELECT * FROM products WHERE name = '" + userInput + "'")</span>, un usuari podria enviar <code>' OR '1'='1</code> com a <code>userInput</code>. Què passaria?</p>
+        <div style="margin-top: 2rem">
+          <button class="quiz-option" onclick="checkQuiz(this, false, 'q2')">
+            A. MySQL rebutjaria la query perquè té un format incorrecte.
+          </button>
+          <button class="quiz-option" onclick="checkQuiz(this, true, 'q2')">
+            B. La query retornaria TOTS els productes perquè
+            <code>'1'='1'</code> sempre és cert (SQL Injection).
+          </button>
+          <button class="quiz-option" onclick="checkQuiz(this, false, 'q2')">
+            C. Spring detecta i bloqueja automàticament l'atac.
+          </button>
+        </div>
+        <div id="q2-feedback" class="feedback-area"></div>
+      </section>
 
-            <div style="margin-top:2rem;">
-                <button class="quiz-option" onclick="checkQuiz(this, false, 'q2')">A. MySQL rebutjaria la query perquè té un format incorrecte.</button>
-                <button class="quiz-option" onclick="checkQuiz(this, true, 'q2')">B. La query retornaria TOTS els productes perquè <code>'1'='1'</code> sempre és cert (SQL Injection).</button>
-                <button class="quiz-option" onclick="checkQuiz(this, false, 'q2')">C. Spring detecta i bloqueja automàticament l'atac.</button>
-            </div>
-            <div id="q2-feedback" class="feedback-area"></div>
-        </section>
+      <!-- RESUM -->
+      <section
+        class="content-block"
+        style="margin-top: 3rem; border-top: 4px solid var(--secondary)"
+      >
+        <h2>📋 Resum de la sessió</h2>
 
+        <table class="comparison-table">
+          <tr>
+            <th>Concepte</th>
+            <th>Detall</th>
+          </tr>
+          <tr>
+            <td>Configuració</td>
+            <td>
+              3 línies a <code>application.properties</code> i 2 dependències al
+              <code>pom.xml</code>
+            </td>
+          </tr>
+          <tr>
+            <td><code>JdbcTemplate</code></td>
+            <td>
+              Classe de Spring que executa SQL gestionant connexions
+              automàticament
+            </td>
+          </tr>
+          <tr>
+            <td><code>jdbc.query()</code></td>
+            <td>Per a SELECT que retornen llistes d'objectes</td>
+          </tr>
+          <tr>
+            <td><code>jdbc.queryForObject()</code></td>
+            <td>Per a SELECT que retornen un sol valor</td>
+          </tr>
+          <tr>
+            <td>RowMapper</td>
+            <td>
+              Lambda que transforma una fila del ResultSet en un objecte Java
+            </td>
+          </tr>
+          <tr>
+            <td>Paràmetres <code>?</code></td>
+            <td>Protecció contra SQL Injection</td>
+          </tr>
+        </table>
 
-        <!-- RESUM -->
-        <section class="content-block" style="margin-top: 3rem; border-top: 4px solid var(--secondary);">
-            <h2>📋 Resum de la sessió</h2>
-
-            <table class="comparison-table">
-                <tr><th>Concepte</th><th>Detall</th></tr>
-                <tr><td>Configuració</td><td>3 línies a <code>application.properties</code> i 2 dependències al <code>pom.xml</code></td></tr>
-                <tr><td><code>JdbcTemplate</code></td><td>Classe de Spring que executa SQL gestionant connexions automàticament</td></tr>
-                <tr><td><code>jdbc.query()</code></td><td>Per a SELECT que retornen llistes d'objectes</td></tr>
-                <tr><td><code>jdbc.queryForObject()</code></td><td>Per a SELECT que retornen un sol valor</td></tr>
-                <tr><td>RowMapper</td><td>Lambda que transforma una fila del ResultSet en un objecte Java</td></tr>
-                <tr><td>Paràmetres <code>?</code></td><td>Protecció contra SQL Injection</td></tr>
-            </table>
-
-            <div class="callout" style="background-color: var(--surface); border: 2px dashed var(--primary);">
-                <span class="label" style="display:block; margin-bottom: 8px;">Pròxima sessió</span>
-                Completarem el CRUD amb operacions d'<strong>escriptura</strong>: INSERT, UPDATE i DELETE amb <code>jdbc.update()</code>, i veurem <code>@Transactional</code>.
-            </div>
-        </section>
-
+        <div
+          class="callout"
+          style="
+            background-color: var(--surface);
+            border: 2px dashed var(--primary);
+          "
+        >
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >Pròxima sessió</span
+          >
+          Completarem el CRUD amb operacions d'<strong>escriptura</strong>:
+          INSERT, UPDATE i DELETE amb <code>jdbc.update()</code>, i veurem
+          <code>@Transactional</code>.
+        </div>
+      </section>
     </div>
+
+    <nav class="session-nav" aria-label="Navegacio entre sessions">
+      <a
+        class="session-nav-link"
+        href="../Sessio 1/S01_Introduccio_Spring_Boot.html"
+        >&larr; Anterior</a
+      >
+      <a class="session-nav-link is-index" href="../index.html">Index</a>
+      <a
+        class="session-nav-link"
+        href="../Sessio 3/S03_JdbcTemplate_Escriptura.html"
+        >Seguent &rarr;</a
+      >
+    </nav>
 
     <!-- SCRIPTS -->
     <script>
-        function checkQuiz(btn, isCorrect, quizId) {
-            const options = btn.parentElement.querySelectorAll('.quiz-option');
-            options.forEach(o => { o.style.pointerEvents = 'none'; o.classList.remove('correct', 'wrong'); });
-            const fb = document.getElementById(quizId + '-feedback');
-            fb.style.display = 'block';
-            if (isCorrect) {
-                btn.classList.add('correct');
-                fb.style.backgroundColor = "rgba(132, 204, 22, 0.1)";
-                fb.style.color = "var(--secondary-fixed)";
-                if (quizId === 'q1') fb.innerHTML = "✅ Correcte! <code>queryForObject()</code> és per a queries que retornen un sol valor escalar (un número, un text).";
-                if (quizId === 'q2') fb.innerHTML = "✅ Correcte! Això és un atac de SQL Injection. La condició <code>'1'='1'</code> és sempre certa, convertint el WHERE en un filtre que no filtra res. Per això fem servir <code>?</code>.";
-            } else {
-                btn.classList.add('wrong');
-                fb.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
-                fb.style.color = "var(--danger)";
-                fb.innerHTML = "❌ Incorrecte. Torna-ho a pensar!";
-                setTimeout(() => {
-                    options.forEach(o => { o.style.pointerEvents = 'auto'; o.classList.remove('wrong'); });
-                    fb.style.display = 'none';
-                }, 4000);
-            }
-        }
-
-        const inputsSeq = [
-            { id: 'ans1', expected: 'AND', nextBlock: 'step2' },
-            { id: 'ans2', expected: '@RequestParam', nextBlock: 'step3' },
-            { id: 'ans3', expected: 'Fruita', nextBlock: null }
-        ];
-        inputsSeq.forEach((stepItem) => {
-            const inputEl = document.getElementById(stepItem.id);
-            inputEl.addEventListener('input', (e) => {
-                const val = e.target.value.trim();
-                if (val.toLowerCase() === stepItem.expected.toLowerCase()) {
-                    e.target.classList.add('success');
-                    e.target.blur();
-                    e.target.closest('.code-step-block').classList.add('completed');
-                    if (stepItem.nextBlock) {
-                        const next = document.getElementById(stepItem.nextBlock);
-                        next.classList.add('active');
-                        setTimeout(() => next.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400);
-                    }
-                }
-            });
+      function checkQuiz(btn, isCorrect, quizId) {
+        const options = btn.parentElement.querySelectorAll(".quiz-option");
+        options.forEach((o) => {
+          o.style.pointerEvents = "none";
+          o.classList.remove("correct", "wrong");
         });
+        const fb = document.getElementById(quizId + "-feedback");
+        fb.style.display = "block";
+        if (isCorrect) {
+          btn.classList.add("correct");
+          fb.style.backgroundColor = "rgba(132, 204, 22, 0.1)";
+          fb.style.color = "var(--secondary-fixed)";
+          if (quizId === "q1")
+            fb.innerHTML =
+              "✅ Correcte! <code>queryForObject()</code> és per a queries que retornen un sol valor escalar (un número, un text).";
+          if (quizId === "q2")
+            fb.innerHTML =
+              "✅ Correcte! Això és un atac de SQL Injection. La condició <code>'1'='1'</code> és sempre certa, convertint el WHERE en un filtre que no filtra res. Per això fem servir <code>?</code>.";
+        } else {
+          btn.classList.add("wrong");
+          fb.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+          fb.style.color = "var(--danger)";
+          fb.innerHTML = "❌ Incorrecte. Torna-ho a pensar!";
+          setTimeout(() => {
+            options.forEach((o) => {
+              o.style.pointerEvents = "auto";
+              o.classList.remove("wrong");
+            });
+            fb.style.display = "none";
+          }, 4000);
+        }
+      }
+
+      const inputsSeq = [
+        { id: "ans1", expected: "AND", nextBlock: "step2" },
+        { id: "ans2", expected: "@RequestParam", nextBlock: "step3" },
+        { id: "ans3", expected: "Fruita", nextBlock: null },
+      ];
+      inputsSeq.forEach((stepItem) => {
+        const inputEl = document.getElementById(stepItem.id);
+        inputEl.addEventListener("input", (e) => {
+          const val = e.target.value.trim();
+          if (val.toLowerCase() === stepItem.expected.toLowerCase()) {
+            e.target.classList.add("success");
+            e.target.blur();
+            e.target.closest(".code-step-block").classList.add("completed");
+            if (stepItem.nextBlock) {
+              const next = document.getElementById(stepItem.nextBlock);
+              next.classList.add("active");
+              setTimeout(
+                () =>
+                  next.scrollIntoView({ behavior: "smooth", block: "center" }),
+                400,
+              );
+            }
+          }
+        });
+      });
     </script>
-</body>
+  </body>
 </html>

@@ -356,26 +356,12 @@ code {
   border-collapse: separate;
   border-spacing: 0;
   margin: 1.5rem 0;
+  border: 1px solid var(--surface-container-low);
   border-radius: var(--radius-lg);
-  overflow-x: auto;
-  display: block;
-  min-width: 280px;
-}
-
-.comparison-table thead {
-  display: block;
-  width: 100%;
-}
-
-.comparison-table tbody {
-  display: block;
-  width: 100%;
-}
-
-.comparison-table tr {
-  display: block;
-  clear: both;
-  width: 100%;
+  overflow: hidden;
+  table-layout: fixed;
+  background: var(--surface-container-lowest);
+  clip-path: inset(0 round var(--radius-lg));
 }
 
 .comparison-table th {
@@ -387,48 +373,20 @@ code {
   font-size: 0.9rem;
   white-space: normal;
   word-break: break-word;
-  display: block;
-  width: 50%;
-  float: left;
-  box-sizing: border-box;
-}
-
-.comparison-table th:first-child {
-  border-radius: var(--radius-lg) 0 0 0;
-}
-
-.comparison-table th:nth-child(2) {
-  border-radius: 0 var(--radius-lg) 0 0;
 }
 
 .comparison-table td {
   padding: 14px 16px;
-  border-bottom: 1px solid var(--surface-container-low);
   color: var(--on-surface-muted);
   font-size: 0.9rem;
   white-space: normal;
   word-break: break-word;
-  display: block;
-  width: 50%;
-  float: left;
-  box-sizing: border-box;
-  min-height: 50px;
+  border-top: 1px solid var(--surface-container-low);
+  vertical-align: top;
 }
 
 .comparison-table tr:nth-child(even) td {
   background: var(--surface);
-}
-
-.comparison-table tr:last-child td {
-  border-bottom: none;
-}
-
-.comparison-table tr:last-child td:first-child {
-  border-radius: 0 0 0 var(--radius-lg);
-}
-
-.comparison-table tr:last-child td:nth-child(2) {
-  border-radius: 0 0 var(--radius-lg) 0;
 }
 
 .diagram-block {
@@ -695,6 +653,84 @@ code {
   min-height: 50vh;
 }
 
+.session-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin: 1rem auto 2rem;
+  padding: 0.35rem;
+  width: calc(100% - 1.5rem);
+  max-width: 860px;
+  background: #e8edf7;
+  border: 1px solid #c7d0e2;
+  border-radius: 1.1rem;
+}
+
+.session-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: #304779;
+  border: 1px solid transparent;
+  border-radius: 0.8rem;
+  min-height: 2.9rem;
+  padding: 0.7rem 0.6rem;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.session-nav-link:hover {
+  transform: none;
+  border-color: rgba(27, 44, 101, 0.22);
+  background: #f6f8fc;
+  color: var(--primary);
+}
+
+.session-nav-link.is-index {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.session-nav-link.is-index:hover {
+  background: var(--primary-container);
+  color: #ffffff;
+}
+
+.session-nav-link.is-disabled {
+  opacity: 0.38;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+@media (max-width: 420px) {
+  .session-nav {
+    gap: 0.25rem;
+    padding: 0.25rem;
+    width: calc(100% - 1rem);
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 0.95rem;
+  }
+
+  .session-nav-link {
+    min-height: 2.55rem;
+    padding: 0.55rem 0.3rem;
+    font-size: 0.88rem;
+    border-radius: 0.7rem;
+  }
+}
+
 @media (max-width: 420px) {
   .flashcard-wrapper {
     min-height: 280px;
@@ -762,43 +798,16 @@ code {
   }
 
   .comparison-table {
-    display: table;
-    overflow: hidden;
-    width: 100%;
-    min-width: auto;
-  }
-
-  .comparison-table thead {
-    display: table-header-group;
-    width: 100%;
-    min-width: auto;
-  }
-
-  .comparison-table tbody {
-    display: table-row-group;
-    width: 100%;
-    min-width: auto;
-  }
-
-  .comparison-table tr {
-    display: table-row;
-    width: auto;
-    min-width: auto;
+    table-layout: auto;
   }
 
   .comparison-table th {
-    display: table-cell;
-    width: 50%;
-    float: none;
     white-space: nowrap;
     padding: 14px 20px;
     font-size: 0.95rem;
   }
 
   .comparison-table td {
-    display: table-cell;
-    width: 50%;
-    float: none;
     white-space: normal;
     padding: 14px 20px;
     font-size: 0.95rem;
@@ -827,6 +836,18 @@ code {
 
   .page-index .hero-section {
     margin: 4rem 0 0 0;
+  }
+
+  .session-nav {
+    gap: 0.4rem;
+    padding: 0.4rem;
+    width: calc(100% - 2rem);
+    border-radius: 1.2rem;
+  }
+
+  .session-nav-link {
+    min-height: 3.1rem;
+    font-size: 1.04rem;
   }
 
   .sessions-grid {
