@@ -1,134 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ca">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sessió 3: JdbcTemplate — INSERT, UPDATE, DELETE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&family=Fira+Code&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #1B2C65; --primary-container: #2A3B7A;
-            --secondary: #FAC213; --secondary-container: #FEF08A; --secondary-fixed: #84CC16;
-            --tertiary: #0A1948; --tertiary-container: #050C24;
-            --surface: #F4F7FB; --surface-container-lowest: #FFFFFF;
-            --surface-container-low: #E2E8F0; --surface-container-high: #CBD5E1;
-            --surface-container-highest: #94A3B8;
-            --on-surface: #1B2C65; --on-surface-muted: #475569;
-            --radius-md: 0.5rem; --radius-lg: 1rem; --radius-xl: 1.5rem;
-            --danger: #ef4444;
-        }
-        .shadow-ambient { box-shadow: 0 10px 40px -10px rgba(27, 44, 101, 0.1); }
-        * { box-sizing: border-box; margin: 0; padding: 0; border: none; }
-        body { font-family: 'Manrope', sans-serif; background-color: var(--surface); color: var(--on-surface); line-height: 1.7; font-size: 1.125rem; padding-bottom: 6rem; }
-        h1, h2, h3, h4 { color: var(--primary); letter-spacing: -0.02em; line-height: 1.2; }
-        h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 1rem; }
-        h2 { font-size: 2.2rem; font-weight: 800; margin: 3rem 0 1.5rem 0; border-bottom: 2px solid var(--surface-container-low); padding-bottom: 0.5rem; }
-        h3 { font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1rem 0; }
-        p { margin-bottom: 1.5rem; color: var(--on-surface-muted); }
-        ul, ol { margin-bottom: 1.5rem; padding-left: 2rem; color: var(--on-surface-muted); }
-        li { margin-bottom: 0.75rem; }
-        strong { color: var(--on-surface); }
-        .label { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; }
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
-        .hero-section { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; min-height: 50vh; margin: 4rem 0; gap: 3rem; position: relative; }
-        .hero-text { flex: 1 1 500px; z-index: 10; }
-        .hero-text .badge { display: inline-block; background: var(--surface-container-low); padding: 6px 14px; border-radius: var(--radius-md); margin-bottom: 1.5rem; color: var(--primary); border-left: 4px solid var(--secondary); }
-        .hero-glass-card { flex: 1 1 400px; background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 3rem; border-radius: var(--radius-xl); z-index: 5; background-image: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(244,247,251,0.6) 100%); border: 1px solid rgba(255,255,255,0.4); }
-        .hero-glass-card h3 { margin-top: 0; color: var(--primary); font-weight: 800; }
-        .content-block { background: var(--surface-container-lowest); border-radius: var(--radius-lg); padding: 3rem; margin-bottom: 2rem; box-shadow: 0 4px 24px rgba(0,0,0,0.03); position: relative; }
-        .callout { background-color: var(--surface-container-low); padding: 1.5rem 2rem; border-radius: var(--radius-lg); margin: 2rem 0; color: var(--primary); font-weight: 600; font-size: 1.15rem; border-left: 5px solid var(--secondary); }
-        .callout.tip { border-left-color: var(--secondary-fixed); }
-        .callout.warning { border-left-color: var(--danger); }
-        .tag { background: var(--surface-container-high); padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; color: var(--primary); display: inline-block; margin-bottom: 8px; font-weight: 800; }
-        .scholarly-list { list-style: none; padding-left: 0; }
-        .scholarly-list li { padding: 16px 20px; margin-bottom: 12px; background-color: var(--surface-container-low); border-radius: var(--radius-md); transition: background-color 0.2s; display: flex; gap: 15px; align-items: start; }
-        .scholarly-list li:hover { background-color: var(--surface); }
-        pre { background-color: var(--tertiary-container); color: #E2E8F0; padding: 2.5rem 2rem 2rem 2rem; border-radius: var(--radius-lg); font-family: 'Fira Code', monospace; font-size: 0.95rem; overflow-x: auto; margin: 1.5rem 0; position: relative; box-shadow: inset 0 2px 15px rgba(0,0,0,0.6); }
-        pre::before { content: attr(data-lang); position: absolute; top: 12px; right: 15px; font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.1em; color: var(--on-surface-muted); }
-        code { font-family: 'Fira Code', monospace; }
-        .inline-code { background: var(--surface-container-low); padding: 2px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: var(--primary); }
-        .checkpoint-card { background: var(--surface-container-lowest); padding: 3rem; border-radius: var(--radius-lg); position: relative; margin-top: 3rem; border: 1px solid var(--surface-container-low); }
-        .quiz-option { background: var(--surface-container-lowest); padding: 1rem 1.5rem; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 1rem; font-family: 'Manrope', sans-serif; color: var(--primary); text-align: left; transition: all 0.2s; border: 2px solid var(--surface-container-high); width: 100%; margin-bottom: 10px; display: block; }
-        .quiz-option:hover { border-color: var(--primary); background: var(--surface); }
-        .quiz-option.correct { border-color: var(--secondary-fixed); background: rgba(132, 204, 22, 0.1); color: var(--secondary-fixed); }
-        .quiz-option.wrong { border-color: var(--danger); background: rgba(239, 68, 68, 0.1); color: var(--danger); text-decoration: line-through; }
-        .feedback-area { margin-top: 1.5rem; padding: 1.5rem; border-radius: var(--radius-md); display: none; font-weight: 600; font-size: 1.1rem; }
-        .code-input-inline { background: rgba(255,255,255,0.05); border: none; border-bottom: 2px dashed var(--secondary); color: var(--secondary); font-family: 'Fira Code', monospace; font-size: 1rem; width: 200px; text-align: center; outline: none; padding: 4px; border-radius: 4px 4px 0 0; transition: all 0.2s; }
-        .code-input-inline:focus { background: rgba(255,255,255,0.1); border-bottom-color: var(--surface-container-lowest); }
-        .code-input-inline.success { color: var(--secondary-fixed); border-bottom: 2px solid var(--secondary-fixed); background: rgba(132, 204, 22, 0.1); pointer-events: none; }
-        .code-step-block { opacity: 0.5; pointer-events: none; transition: opacity 0.4s; position: relative; }
-        .code-step-block.active { opacity: 1; pointer-events: auto; }
-        .code-step-block.completed::after { content: "✓ COMPLETAT"; position: absolute; top: -10px; right: 0; background: var(--secondary-fixed); color: white; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; }
-        .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 1.5rem 0; border-radius: var(--radius-lg); overflow: hidden; }
-        .comparison-table th { background: var(--primary); color: white; padding: 14px 20px; text-align: left; font-weight: 800; font-size: 0.95rem; }
-        .comparison-table td { padding: 14px 20px; border-bottom: 1px solid var(--surface-container-low); color: var(--on-surface-muted); font-size: 0.95rem; }
-        .comparison-table tr:nth-child(even) td { background: var(--surface); }
-        .comparison-table tr:last-child td { border-bottom: none; }
-        .diagram-block { background: var(--surface-container-low); border-radius: var(--radius-lg); padding: 2.5rem; margin: 2rem 0; text-align: center; font-family: 'Fira Code', monospace; font-size: 0.95rem; line-height: 1.8; color: var(--primary); }
-        .flashcard-wrapper { perspective: 1200px; width: 100%; max-width: 350px; height: 220px; cursor: pointer; float: right; margin: 0 0 1rem 2rem; }
-        @media (max-width: 768px) { .flashcard-wrapper { float: none; margin: 1rem auto; display: block; } }
-        .flashcard-inner { width: 100%; height: 100%; position: relative; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
-        .flashcard-wrapper.flipped .flashcard-inner { transform: rotateY(180deg); }
-        .fc-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; border-radius: var(--radius-lg); text-align: center; box-shadow: 0 8px 30px rgba(27,44,101,0.1); }
-        .fc-front { background: linear-gradient(135deg, var(--surface) 0%, var(--surface-container-low) 100%); color: var(--primary); border: 2px solid var(--primary); }
-        .fc-back { background: var(--primary); color: #fff; transform: rotateY(180deg); border: 2px solid var(--secondary); }
-        .fc-icon { font-size: 2rem; margin-bottom: 10px; }
-    </style>
-</head>
-<body>
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&family=Fira+Code&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body class="page-session">
     <div class="container">
+      <!-- HERO -->
+      <header class="hero-section">
+        <div class="hero-text">
+          <span class="label badge">Spring Boot · Sessió 3</span>
+          <h1>JdbcTemplate: Escriptura a la BBDD</h1>
+          <p style="font-size: 1.3rem">
+            Completem el CRUD amb INSERT, UPDATE i DELETE. Descobrim
+            <code>@Transactional</code>: com assegurar que operacions múltiples
+            siguin atòmiques.
+          </p>
+        </div>
+        <div class="hero-glass-card shadow-ambient">
+          <h3 class="label">Punts Clau de la Sessió</h3>
+          <ul class="scholarly-list">
+            <li>
+              <span>✏️</span> INSERT, UPDATE i DELETE amb
+              <code>jdbc.update()</code>.
+            </li>
+            <li>
+              <span>🔑</span> Recuperar l'ID autogenerat després d'un INSERT.
+            </li>
+            <li>
+              <span>🔒</span> <code>@Transactional</code>: operacions atòmiques
+              (tot o res).
+            </li>
+            <li>
+              <span>📊</span> Resum complet de JdbcTemplate com a motivació cap
+              a JPA.
+            </li>
+          </ul>
+        </div>
+      </header>
 
-        <!-- HERO -->
-        <header class="hero-section">
-            <div class="hero-text">
-                <span class="label badge">Spring Boot · Sessió 3</span>
-                <h1>JdbcTemplate: Escriptura a la BBDD</h1>
-                <p style="font-size:1.3rem;">Completem el CRUD amb INSERT, UPDATE i DELETE. Descobrim <code>@Transactional</code>: com assegurar que operacions múltiples siguin atòmiques.</p>
-            </div>
-            <div class="hero-glass-card shadow-ambient">
-                <h3 class="label">Punts Clau de la Sessió</h3>
-                <ul class="scholarly-list">
-                    <li><span>✏️</span> INSERT, UPDATE i DELETE amb <code>jdbc.update()</code>.</li>
-                    <li><span>🔑</span> Recuperar l'ID autogenerat després d'un INSERT.</li>
-                    <li><span>🔒</span> <code>@Transactional</code>: operacions atòmiques (tot o res).</li>
-                    <li><span>📊</span> Resum complet de JdbcTemplate com a motivació cap a JPA.</li>
-                </ul>
-            </div>
-        </header>
+      <!-- BLOC 1: jdbc.update() -->
+      <section class="content-block">
+        <span class="tag">Operacions d'escriptura</span>
+        <h2>1. El mètode <span class="inline-code">jdbc.update()</span></h2>
 
+        <p>
+          A la sessió anterior vam usar
+          <span class="inline-code">jdbc.query()</span> per llegir dades. Per
+          <strong>modificar</strong> dades (INSERT, UPDATE, DELETE), Spring
+          ofereix <span class="inline-code">jdbc.update()</span>.
+        </p>
 
-        <!-- BLOC 1: jdbc.update() -->
-        <section class="content-block">
-            <span class="tag">Operacions d'escriptura</span>
-            <h2>1. El mètode <span class="inline-code">jdbc.update()</span></h2>
+        <table class="comparison-table">
+          <tr>
+            <th>Mètode</th>
+            <th>Operació</th>
+            <th>Retorna</th>
+          </tr>
+          <tr>
+            <td>
+              <span class="inline-code">jdbc.query(sql, mapper, params)</span>
+            </td>
+            <td>SELECT</td>
+            <td>Llista d'objectes</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="inline-code"
+                >jdbc.queryForObject(sql, type, params)</span
+              >
+            </td>
+            <td>SELECT (un valor)</td>
+            <td>Un objecte/valor</td>
+          </tr>
+          <tr>
+            <td><span class="inline-code">jdbc.update(sql, params)</span></td>
+            <td>INSERT / UPDATE / DELETE</td>
+            <td><code>int</code> = files afectades</td>
+          </tr>
+        </table>
 
-            <p>A la sessió anterior vam usar <span class="inline-code">jdbc.query()</span> per llegir dades. Per <strong>modificar</strong> dades (INSERT, UPDATE, DELETE), Spring ofereix <span class="inline-code">jdbc.update()</span>.</p>
+        <div class="callout">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >Resultat de jdbc.update()</span
+          >
+          El nombre de files afectades et permet saber si l'operació va
+          funcionar:<br />
+          <code>0</code> → cap fila tocada (p.ex. DELETE d'un id que no
+          existeix)<br />
+          <code>1</code> → una fila inserida/actualitzada/eliminada<br />
+          <code>N</code> → N files afectades (p.ex. UPDATE massiu)
+        </div>
+      </section>
 
-            <table class="comparison-table">
-                <tr><th>Mètode</th><th>Operació</th><th>Retorna</th></tr>
-                <tr><td><span class="inline-code">jdbc.query(sql, mapper, params)</span></td><td>SELECT</td><td>Llista d'objectes</td></tr>
-                <tr><td><span class="inline-code">jdbc.queryForObject(sql, type, params)</span></td><td>SELECT (un valor)</td><td>Un objecte/valor</td></tr>
-                <tr><td><span class="inline-code">jdbc.update(sql, params)</span></td><td>INSERT / UPDATE / DELETE</td><td><code>int</code> = files afectades</td></tr>
-            </table>
+      <!-- BLOC 2: INSERT -->
+      <section class="content-block">
+        <span class="tag">INSERT</span>
+        <h2>2. Inserir un producte</h2>
 
-            <div class="callout">
-                <span class="label" style="display:block; margin-bottom: 8px;">Resultat de jdbc.update()</span>
-                El nombre de files afectades et permet saber si l'operació va funcionar:<br>
-                <code>0</code> → cap fila tocada (p.ex. DELETE d'un id que no existeix)<br>
-                <code>1</code> → una fila inserida/actualitzada/eliminada<br>
-                <code>N</code> → N files afectades (p.ex. UPDATE massiu)
-            </div>
-        </section>
-
-
-        <!-- BLOC 2: INSERT -->
-        <section class="content-block">
-            <span class="tag">INSERT</span>
-            <h2>2. Inserir un producte</h2>
-
-            <h3>2.1 INSERT bàsic</h3>
-            <pre data-lang="JAVA"><code>public int save(Product product) {
+        <h3>2.1 INSERT bàsic</h3>
+        <pre data-lang="JAVA"><code>public int save(Product product) {
     String sql = "INSERT INTO products (name, price, description, category, stock) " +
                  "VALUES (?, ?, ?, ?, ?)";
 
@@ -142,10 +119,15 @@
 }
 // Retorna 1 si s'ha inserit correctament</code></pre>
 
-            <h3>2.2 INSERT recuperant l'ID autogenerat</h3>
-            <p>Sovint necessitem saber l'<code>id</code> assignat per MySQL (auto-increment). El patró és una mica més verbós:</p>
+        <h3>2.2 INSERT recuperant l'ID autogenerat</h3>
+        <p>
+          Sovint necessitem saber l'<code>id</code> assignat per MySQL
+          (auto-increment). El patró és una mica més verbós:
+        </p>
 
-            <pre data-lang="JAVA"><code>import org.springframework.jdbc.core.PreparedStatementCreator;
+        <pre
+          data-lang="JAVA"
+        ><code>import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import java.sql.PreparedStatement;
@@ -172,19 +154,24 @@ public Product saveAndReturnId(Product product) {
     return product;
 }</code></pre>
 
-            <div class="callout tip">
-                <span class="label" style="display:block; margin-bottom: 8px;">💡 KeyHolder</span>
-                El <code>KeyHolder</code> captura la clau primària generada per MySQL. Això ens permet retornar al client l'objecte complet amb el seu <code>id</code> assignat.
-            </div>
-        </section>
+        <div class="callout tip">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >💡 KeyHolder</span
+          >
+          El <code>KeyHolder</code> captura la clau primària generada per MySQL.
+          Això ens permet retornar al client l'objecte complet amb el seu
+          <code>id</code> assignat.
+        </div>
+      </section>
 
+      <!-- BLOC 3: UPDATE -->
+      <section class="content-block">
+        <span class="tag">UPDATE</span>
+        <h2>3. Actualitzar un producte</h2>
 
-        <!-- BLOC 3: UPDATE -->
-        <section class="content-block">
-            <span class="tag">UPDATE</span>
-            <h2>3. Actualitzar un producte</h2>
-
-            <pre data-lang="JAVA"><code>public int update(Long id, Product product) {
+        <pre
+          data-lang="JAVA"
+        ><code>public int update(Long id, Product product) {
     String sql = "UPDATE products SET name = ?, price = ?, description = ?, " +
                  "category = ?, stock = ? WHERE id = ?";
 
@@ -199,10 +186,13 @@ public Product saveAndReturnId(Product product) {
 }
 // Retorna 1 si existia i s'ha actualitzat, 0 si l'id no existia</code></pre>
 
-            <p>El valor retornat és clau per al Controller: si retorna <code>0</code>, responem <strong>404 Not Found</strong>.</p>
+        <p>
+          El valor retornat és clau per al Controller: si retorna
+          <code>0</code>, responem <strong>404 Not Found</strong>.
+        </p>
 
-            <h3>Controller amb gestió de 404</h3>
-            <pre data-lang="JAVA"><code>@PutMapping("/{id}")
+        <h3>Controller amb gestió de 404</h3>
+        <pre data-lang="JAVA"><code>@PutMapping("/{id}")
 public ResponseEntity&lt;String&gt; update(@PathVariable Long id,
                                       @RequestBody Product product) {
     int rowsAffected = productService.update(id, product);
@@ -212,22 +202,21 @@ public ResponseEntity&lt;String&gt; update(@PathVariable Long id,
     }
     return ResponseEntity.notFound().build();                    // 404
 }</code></pre>
-        </section>
+      </section>
 
+      <!-- BLOC 4: DELETE -->
+      <section class="content-block">
+        <span class="tag">DELETE</span>
+        <h2>4. Eliminar un producte</h2>
 
-        <!-- BLOC 4: DELETE -->
-        <section class="content-block">
-            <span class="tag">DELETE</span>
-            <h2>4. Eliminar un producte</h2>
-
-            <pre data-lang="JAVA"><code>public int deleteById(Long id) {
+        <pre data-lang="JAVA"><code>public int deleteById(Long id) {
     String sql = "DELETE FROM products WHERE id = ?";
     return jdbc.update(sql, id);
 }
 // Retorna 1 si existia i s'ha eliminat, 0 si no existia</code></pre>
 
-            <p>El Controller segueix el mateix patró que l'UPDATE:</p>
-            <pre data-lang="JAVA"><code>@DeleteMapping("/{id}")
+        <p>El Controller segueix el mateix patró que l'UPDATE:</p>
+        <pre data-lang="JAVA"><code>@DeleteMapping("/{id}")
 public ResponseEntity&lt;Void&gt; delete(@PathVariable Long id) {
     int rowsAffected = productService.delete(id);
 
@@ -236,36 +225,57 @@ public ResponseEntity&lt;Void&gt; delete(@PathVariable Long id) {
     }
     return ResponseEntity.notFound().build();         // 404
 }</code></pre>
-        </section>
+      </section>
 
+      <!-- BLOC 5: @Transactional -->
+      <section class="content-block">
+        <span class="tag">Transaccions</span>
+        <h2>5. <span class="inline-code">@Transactional</span>: tot o res</h2>
 
-        <!-- BLOC 5: @Transactional -->
-        <section class="content-block">
-            <span class="tag">Transaccions</span>
-            <h2>5. <span class="inline-code">@Transactional</span>: tot o res</h2>
-
-            <div class="flashcard-wrapper" onclick="this.classList.toggle('flipped')">
-                <div class="flashcard-inner">
-                    <div class="fc-face fc-front">
-                        <div class="fc-icon">🔒</div>
-                        <h3>Què és una transacció?</h3>
-                        <span style="font-size:0.8rem; opacity:0.7; margin-top:10px; text-transform:uppercase;">Clica per a la definició</span>
-                    </div>
-                    <div class="fc-face fc-back">
-                        <p>Un conjunt d'operacions que s'executaran <strong>totes</strong> o <strong>cap</strong>. Si una falla al mig, les anteriors es desfan automàticament (<em>rollback</em>).</p>
-                    </div>
-                </div>
+        <div
+          class="flashcard-wrapper"
+          onclick="this.classList.toggle('flipped')"
+        >
+          <div class="flashcard-inner">
+            <div class="fc-face fc-front">
+              <div class="fc-icon">🔒</div>
+              <h3>Què és una transacció?</h3>
+              <span
+                style="
+                  font-size: 0.8rem;
+                  opacity: 0.7;
+                  margin-top: 10px;
+                  text-transform: uppercase;
+                "
+                >Clica per a la definició</span
+              >
             </div>
+            <div class="fc-face fc-back">
+              <p>
+                Un conjunt d'operacions que s'executaran
+                <strong>totes</strong> o <strong>cap</strong>. Si una falla al
+                mig, les anteriors es desfan automàticament (<em>rollback</em>).
+              </p>
+            </div>
+          </div>
+        </div>
 
-            <p>Imagina un sistema bancari: transferir 100€ del compte A al B requereix dues operacions:</p>
-            <ol>
-                <li>Restar 100€ del compte A</li>
-                <li>Sumar 100€ al compte B</li>
-            </ol>
-            <p>Si la 2a falla però la 1a ja s'ha executat, els 100€ s'han <em>desaparegut</em>. <strong>@Transactional</strong> impedeix que això passi.</p>
+        <p>
+          Imagina un sistema bancari: transferir 100€ del compte A al B
+          requereix dues operacions:
+        </p>
+        <ol>
+          <li>Restar 100€ del compte A</li>
+          <li>Sumar 100€ al compte B</li>
+        </ol>
+        <p>
+          Si la 2a falla però la 1a ja s'ha executat, els 100€ s'han
+          <em>desaparegut</em>. <strong>@Transactional</strong> impedeix que
+          això passi.
+        </p>
 
-            <h3>5.1 Exemple: Transferir stock entre productes</h3>
-            <pre data-lang="JAVA"><code>@Service
+        <h3>5.1 Exemple: Transferir stock entre productes</h3>
+        <pre data-lang="JAVA"><code>@Service
 public class ProductService {
 
     @Autowired
@@ -288,8 +298,8 @@ public class ProductService {
     }
 }</code></pre>
 
-            <h3>5.2 Mètodes de repositori per a stock</h3>
-            <pre data-lang="JAVA"><code>public int reduceStock(Long id, int units) {
+        <h3>5.2 Mètodes de repositori per a stock</h3>
+        <pre data-lang="JAVA"><code>public int reduceStock(Long id, int units) {
     String sql = "UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?";
     return jdbc.update(sql, units, id, units);
     // La condició stock >= ? evita stocks negatius
@@ -300,31 +310,52 @@ public int increaseStock(Long id, int units) {
     return jdbc.update(sql, units, id);
 }</code></pre>
 
-            <div class="callout">
-                <span class="label" style="display:block; margin-bottom: 8px;">Com funciona per darrere</span>
-                Quan un mètode anotat amb <code>@Transactional</code> s'executa:<br>
-                <strong>1.</strong> Spring obre una transacció (BEGIN)<br>
-                <strong>2.</strong> Executa tot el mètode<br>
-                <strong>3.</strong> Si tot va bé → COMMIT<br>
-                <strong>4.</strong> Si hi ha una excepció → ROLLBACK (tot es desfà)
-            </div>
+        <div class="callout">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >Com funciona per darrere</span
+          >
+          Quan un mètode anotat amb <code>@Transactional</code> s'executa:<br />
+          <strong>1.</strong> Spring obre una transacció (BEGIN)<br />
+          <strong>2.</strong> Executa tot el mètode<br />
+          <strong>3.</strong> Si tot va bé → COMMIT<br />
+          <strong>4.</strong> Si hi ha una excepció → ROLLBACK (tot es desfà)
+        </div>
 
-            <h3>5.3 Regles importants</h3>
-            <table class="comparison-table">
-                <tr><th>Regla</th><th>Per què</th></tr>
-                <tr><td><code>@Transactional</code> va al <strong>Service</strong>, no al Repository</td><td>El Service és qui decideix l'atomicitat de la lògica de negoci</td></tr>
-                <tr><td>El rollback només passa amb <strong>excepcions no checked</strong> (RuntimeException)</td><td>Spring no fa rollback amb excepcions checked per defecte</td></tr>
-                <tr><td>El mètode ha de ser <strong>public</strong></td><td>Spring utilitza proxies per interceptar les crides</td></tr>
-            </table>
-        </section>
+        <h3>5.3 Regles importants</h3>
+        <table class="comparison-table">
+          <tr>
+            <th>Regla</th>
+            <th>Per què</th>
+          </tr>
+          <tr>
+            <td>
+              <code>@Transactional</code> va al <strong>Service</strong>, no al
+              Repository
+            </td>
+            <td>
+              El Service és qui decideix l'atomicitat de la lògica de negoci
+            </td>
+          </tr>
+          <tr>
+            <td>
+              El rollback només passa amb
+              <strong>excepcions no checked</strong> (RuntimeException)
+            </td>
+            <td>Spring no fa rollback amb excepcions checked per defecte</td>
+          </tr>
+          <tr>
+            <td>El mètode ha de ser <strong>public</strong></td>
+            <td>Spring utilitza proxies per interceptar les crides</td>
+          </tr>
+        </table>
+      </section>
 
+      <!-- BLOC 6: ENDPOINTS POST I PUT COMPLETS -->
+      <section class="content-block">
+        <span class="tag">Codi complet</span>
+        <h2>6. El Controller complet (CRUD)</h2>
 
-        <!-- BLOC 6: ENDPOINTS POST I PUT COMPLETS -->
-        <section class="content-block">
-            <span class="tag">Codi complet</span>
-            <h2>6. El Controller complet (CRUD)</h2>
-
-            <pre data-lang="JAVA"><code>@RestController
+        <pre data-lang="JAVA"><code>@RestController
 @RequestMapping("/api/products")
 public class ProductController {
 
@@ -379,150 +410,269 @@ public class ProductController {
         return ResponseEntity.ok("Stock transferit correctament");
     }
 }</code></pre>
-        </section>
+      </section>
 
+      <!-- BLOC 7: RESUM I MOTIVACIÓ PER JPA -->
+      <section class="content-block">
+        <h2>7. Resum de JdbcTemplate: fortaleses i límits</h2>
 
-        <!-- BLOC 7: RESUM I MOTIVACIÓ PER JPA -->
-        <section class="content-block">
-            <h2>7. Resum de JdbcTemplate: fortaleses i límits</h2>
+        <p>
+          Ja tenim un <strong>CRUD complet</strong> amb JdbcTemplate. Fem
+          balanç:
+        </p>
 
-            <p>Ja tenim un <strong>CRUD complet</strong> amb JdbcTemplate. Fem balanç:</p>
+        <table class="comparison-table">
+          <tr>
+            <th>✅ Fortaleses</th>
+            <th>❌ Límits</th>
+          </tr>
+          <tr>
+            <td>SQL 100% visible i controlat per tu</td>
+            <td>Repetitiu: cada taula requereix el seu RowMapper</td>
+          </tr>
+          <tr>
+            <td>Connexions gestionades per Spring</td>
+            <td>Cada camp s'ha de mapejar manualment</td>
+          </tr>
+          <tr>
+            <td>Paràmetres segurs amb <code>?</code></td>
+            <td>Si canvies un camp a la taula, has de tocar N mètodes</td>
+          </tr>
+          <tr>
+            <td>Control total del SQL exacte</td>
+            <td>El codi de INSERT/UPDATE és molt verbós</td>
+          </tr>
+          <tr>
+            <td><code>@Transactional</code> automàtic</td>
+            <td>Escalar a 20 taules = molt de codi repetitiu</td>
+          </tr>
+        </table>
 
-            <table class="comparison-table">
-                <tr><th>✅ Fortaleses</th><th>❌ Límits</th></tr>
-                <tr><td>SQL 100% visible i controlat per tu</td><td>Repetitiu: cada taula requereix el seu RowMapper</td></tr>
-                <tr><td>Connexions gestionades per Spring</td><td>Cada camp s'ha de mapejar manualment</td></tr>
-                <tr><td>Paràmetres segurs amb <code>?</code></td><td>Si canvies un camp a la taula, has de tocar N mètodes</td></tr>
-                <tr><td>Control total del SQL exacte</td><td>El codi de INSERT/UPDATE és molt verbós</td></tr>
-                <tr><td><code>@Transactional</code> automàtic</td><td>Escalar a 20 taules = molt de codi repetitiu</td></tr>
-            </table>
+        <div
+          class="callout"
+          style="
+            background-color: var(--surface);
+            border: 2px dashed var(--primary);
+          "
+        >
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >Pròxima sessió: Spring Data JPA</span
+          >
+          A la Sessió 4 descobrirem com una
+          <strong>interfície de 3 línies</strong> pot substituir tot el
+          repositori que hem escrit en les Sessions 2 i 3. El CRUD sencer —
+          findAll, findById, save, delete — es genera
+          <strong>automàticament</strong>. Benvinguts al món de l'ORM.
+        </div>
 
-            <div class="callout" style="background-color: var(--surface); border: 2px dashed var(--primary);">
-                <span class="label" style="display:block; margin-bottom: 8px;">Pròxima sessió: Spring Data JPA</span>
-                A la Sessió 4 descobrirem com una <strong>interfície de 3 línies</strong> pot substituir tot el repositori que hem escrit en les Sessions 2 i 3. El CRUD sencer — findAll, findById, save, delete — es genera <strong>automàticament</strong>. Benvinguts al món de l'ORM.
-            </div>
+        <div class="diagram-block">
+          <strong style="color: var(--secondary)"
+            >El que hem escrit (Sessions 2-3)</strong
+          ><br />
+          ProductRepository.java → ~80 línies de SQL + RowMapper<br /><br />
+          <strong style="color: var(--secondary)"
+            >El que escriurem (Sessió 4)</strong
+          ><br />
+          <span style="font-size: 1.1rem"
+            >public interface ProductRepository<br />extends
+            JpaRepository&lt;Product, Long&gt; { }</span
+          ><br />
+          <strong
+            style="
+              font-size: 1.3rem;
+              color: var(--secondary-fixed);
+              margin-top: 0.5rem;
+              display: block;
+            "
+            >3 línies. Ja.</strong
+          >
+        </div>
+      </section>
 
-            <div class="diagram-block">
-                <strong style="color:var(--secondary);">El que hem escrit (Sessions 2-3)</strong><br>
-                ProductRepository.java → ~80 línies de SQL + RowMapper<br><br>
-                <strong style="color:var(--secondary);">El que escriurem (Sessió 4)</strong><br>
-                <span style="font-size: 1.1rem;">public interface ProductRepository<br>extends JpaRepository&lt;Product, Long&gt; { }</span><br>
-                <strong style="font-size: 1.3rem; color:var(--secondary-fixed); margin-top: 0.5rem; display: block;">3 línies. Ja.</strong>
-            </div>
-        </section>
+      <!-- EXERCICI INTERACTIU -->
+      <section class="content-block" style="margin-top: 3rem">
+        <h2>8. Completa el codi: pas a pas</h2>
+        <p>
+          Implementa un endpoint per actualitzar el preu de tots els productes
+          d'una categoria.
+        </p>
 
-
-        <!-- EXERCICI INTERACTIU -->
-        <section class="content-block" style="margin-top: 3rem;">
-            <h2>8. Completa el codi: pas a pas</h2>
-            <p>Implementa un endpoint per actualitzar el preu de tots els productes d'una categoria.</p>
-
-            <div class="code-step-block active" id="step1">
-                <h3>Pas 1: El mètode al repositori</h3>
-                <p>Quin mètode de JdbcTemplate usen les operacions d'escriptura (INSERT, UPDATE, DELETE)?</p>
-                <pre data-lang="JAVA"><code>public int updatePriceByCategory(String category, Double newPrice) {
+        <div class="code-step-block active" id="step1">
+          <h3>Pas 1: El mètode al repositori</h3>
+          <p>
+            Quin mètode de JdbcTemplate usen les operacions d'escriptura
+            (INSERT, UPDATE, DELETE)?
+          </p>
+          <pre
+            data-lang="JAVA"
+          ><code>public int updatePriceByCategory(String category, Double newPrice) {
     String sql = "UPDATE products SET price = ? WHERE category = ?";
     return jdbc.<input type="text" id="ans1" class="code-input-inline" placeholder="???" style="width:120px;">(sql, newPrice, category);
 }</code></pre>
-            </div>
+        </div>
 
-            <div class="code-step-block" id="step2">
-                <h3 style="margin-top:2rem;">Pas 2: L'endpoint</h3>
-                <p>Quina anotació HTTP és la correcta per a una operació d'actualització?</p>
-                <pre data-lang="JAVA"><code><input type="text" id="ans2" class="code-input-inline" placeholder="???" style="width:220px;">("/category/{category}/price")
+        <div class="code-step-block" id="step2">
+          <h3 style="margin-top: 2rem">Pas 2: L'endpoint</h3>
+          <p>
+            Quina anotació HTTP és la correcta per a una operació
+            d'actualització?
+          </p>
+          <pre
+            data-lang="JAVA"
+          ><code><input type="text" id="ans2" class="code-input-inline" placeholder="???" style="width:220px;">("/category/{category}/price")
 public ResponseEntity&lt;String&gt; updatePriceByCategory(
         @PathVariable String category,
         @RequestParam Double newPrice) {
     int rows = productService.updatePriceByCategory(category, newPrice);
     return ResponseEntity.ok(rows + " productes actualitzats");
 }</code></pre>
-            </div>
+        </div>
 
-            <div class="code-step-block" id="step3">
-                <h3 style="margin-top:2rem;">Pas 3: Fer-ho transaccional</h3>
-                <p>Si volem que l'operació sigui atòmica, quina anotació posem al mètode del Service?</p>
-                <pre data-lang="JAVA"><code><input type="text" id="ans3" class="code-input-inline" placeholder="???" style="width:180px;">
+        <div class="code-step-block" id="step3">
+          <h3 style="margin-top: 2rem">Pas 3: Fer-ho transaccional</h3>
+          <p>
+            Si volem que l'operació sigui atòmica, quina anotació posem al
+            mètode del Service?
+          </p>
+          <pre
+            data-lang="JAVA"
+          ><code><input type="text" id="ans3" class="code-input-inline" placeholder="???" style="width:180px;">
 public int updatePriceByCategory(String category, Double newPrice) {
     return productRepository.updatePriceByCategory(category, newPrice);
 }</code></pre>
-            </div>
-        </section>
+        </div>
+      </section>
 
+      <!-- CHECKPOINT -->
+      <section class="checkpoint-card shadow-ambient" id="quiz1">
+        <span
+          class="label tag"
+          style="background: var(--secondary); color: var(--primary)"
+          >Checkpoint</span
+        >
+        <h2>Verifica el que has après</h2>
 
-        <!-- CHECKPOINT -->
-        <section class="checkpoint-card shadow-ambient" id="quiz1">
-            <span class="label tag" style="background:var(--secondary); color:var(--primary);">Checkpoint</span>
-            <h2>Verifica el que has après</h2>
+        <p style="font-weight: 800; color: var(--primary); margin-top: 1rem">
+          Tens un mètode <code>@Transactional</code> al Service que executa 3
+          UPDATEs. El primer i el segon funcionen, però el tercer llença una
+          <code>RuntimeException</code>. Quin és l'estat de la BBDD després?
+        </p>
 
-            <p style="font-weight:800; color:var(--primary); margin-top:1rem;">Tens un mètode <code>@Transactional</code> al Service que executa 3 UPDATEs. El primer i el segon funcionen, però el tercer llença una <code>RuntimeException</code>. Quin és l'estat de la BBDD després?</p>
+        <div style="margin-top: 2rem">
+          <button class="quiz-option" onclick="checkQuiz(this, false, 'q1')">
+            A. Els dos primers UPDATEs s'han aplicat, el tercer no.
+          </button>
+          <button class="quiz-option" onclick="checkQuiz(this, true, 'q1')">
+            B. Cap dels tres UPDATEs s'ha aplicat. La BBDD està igual que abans.
+          </button>
+          <button class="quiz-option" onclick="checkQuiz(this, false, 'q1')">
+            C. Depèn del tipus d'excepció i de la configuració de MySQL.
+          </button>
+        </div>
+        <div id="q1-feedback" class="feedback-area"></div>
+      </section>
 
-            <div style="margin-top:2rem;">
-                <button class="quiz-option" onclick="checkQuiz(this, false, 'q1')">A. Els dos primers UPDATEs s'han aplicat, el tercer no.</button>
-                <button class="quiz-option" onclick="checkQuiz(this, true, 'q1')">B. Cap dels tres UPDATEs s'ha aplicat. La BBDD està igual que abans.</button>
-                <button class="quiz-option" onclick="checkQuiz(this, false, 'q1')">C. Depèn del tipus d'excepció i de la configuració de MySQL.</button>
-            </div>
-            <div id="q1-feedback" class="feedback-area"></div>
-        </section>
-
-
-        <!-- RESUM FINAL -->
-        <section class="content-block" style="margin-top: 3rem; border-top: 4px solid var(--secondary);">
-            <h2>📋 Resum de la sessió</h2>
-            <ul class="scholarly-list">
-                <li><span>1.</span> <code>jdbc.update(sql, params)</code> serveix per a <strong>INSERT, UPDATE i DELETE</strong>. Retorna el nombre de files afectades.</li>
-                <li><span>2.</span> <strong>KeyHolder</strong> permet recuperar l'ID autogenerat per MySQL després d'un INSERT.</li>
-                <li><span>3.</span> <code>@Transactional</code> fa que un mètode sigui atòmic: si una operació falla, totes es desfan.</li>
-                <li><span>4.</span> Les transaccions van al <strong>@Service</strong>, mai al Repository ni al Controller.</li>
-                <li><span>5.</span> JdbcTemplate és potent però <strong>repetitiu</strong>: a la S4 veurem com JPA elimina la repetició.</li>
-            </ul>
-        </section>
-
+      <!-- RESUM FINAL -->
+      <section
+        class="content-block"
+        style="margin-top: 3rem; border-top: 4px solid var(--secondary)"
+      >
+        <h2>📋 Resum de la sessió</h2>
+        <ul class="scholarly-list">
+          <li>
+            <span>1.</span> <code>jdbc.update(sql, params)</code> serveix per a
+            <strong>INSERT, UPDATE i DELETE</strong>. Retorna el nombre de files
+            afectades.
+          </li>
+          <li>
+            <span>2.</span> <strong>KeyHolder</strong> permet recuperar l'ID
+            autogenerat per MySQL després d'un INSERT.
+          </li>
+          <li>
+            <span>3.</span> <code>@Transactional</code> fa que un mètode sigui
+            atòmic: si una operació falla, totes es desfan.
+          </li>
+          <li>
+            <span>4.</span> Les transaccions van al <strong>@Service</strong>,
+            mai al Repository ni al Controller.
+          </li>
+          <li>
+            <span>5.</span> JdbcTemplate és potent però
+            <strong>repetitiu</strong>: a la S4 veurem com JPA elimina la
+            repetició.
+          </li>
+        </ul>
+      </section>
     </div>
 
-    <script>
-        function checkQuiz(btn, isCorrect, quizId) {
-            const options = btn.parentElement.querySelectorAll('.quiz-option');
-            options.forEach(o => { o.style.pointerEvents = 'none'; o.classList.remove('correct', 'wrong'); });
-            const fb = document.getElementById(quizId + '-feedback');
-            fb.style.display = 'block';
-            if (isCorrect) {
-                btn.classList.add('correct');
-                fb.style.backgroundColor = "rgba(132, 204, 22, 0.1)";
-                fb.style.color = "var(--secondary-fixed)";
-                fb.innerHTML = "✅ Correcte! Amb <code>@Transactional</code>, si hi ha una excepció, Spring fa <strong>ROLLBACK</strong> de totes les operacions. Cap dels tres UPDATEs s'aplica. Atomicitat: tot o res.";
-            } else {
-                btn.classList.add('wrong');
-                fb.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
-                fb.style.color = "var(--danger)";
-                fb.innerHTML = "❌ Recorda: <code>@Transactional</code> garanteix atomicitat. Si qualsevol operació dins del mètode falla amb una RuntimeException, TOTES es desfan.";
-                setTimeout(() => {
-                    options.forEach(o => { o.style.pointerEvents = 'auto'; o.classList.remove('wrong'); });
-                    fb.style.display = 'none';
-                }, 4000);
-            }
-        }
+    <nav class="session-nav" aria-label="Navegacio entre sessions">
+      <a
+        class="session-nav-link"
+        href="../Sessio 2/S02_JdbcTemplate_Select.html"
+        >&larr; Anterior</a
+      >
+      <a class="session-nav-link is-index" href="../index.html">Index</a>
+      <a class="session-nav-link" href="../Sessio 4/S04_Spring_Data_JPA.html"
+        >Seguent &rarr;</a
+      >
+    </nav>
 
-        const inputsSeq = [
-            { id: 'ans1', expected: 'update', nextBlock: 'step2' },
-            { id: 'ans2', expected: '@PutMapping', nextBlock: 'step3' },
-            { id: 'ans3', expected: '@Transactional', nextBlock: null }
-        ];
-        inputsSeq.forEach((stepItem) => {
-            const inputEl = document.getElementById(stepItem.id);
-            inputEl.addEventListener('input', (e) => {
-                const val = e.target.value.trim();
-                if (val.toLowerCase() === stepItem.expected.toLowerCase()) {
-                    e.target.classList.add('success');
-                    e.target.blur();
-                    e.target.closest('.code-step-block').classList.add('completed');
-                    if (stepItem.nextBlock) {
-                        const next = document.getElementById(stepItem.nextBlock);
-                        next.classList.add('active');
-                        setTimeout(() => next.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400);
-                    }
-                }
-            });
+    <script>
+      function checkQuiz(btn, isCorrect, quizId) {
+        const options = btn.parentElement.querySelectorAll(".quiz-option");
+        options.forEach((o) => {
+          o.style.pointerEvents = "none";
+          o.classList.remove("correct", "wrong");
         });
+        const fb = document.getElementById(quizId + "-feedback");
+        fb.style.display = "block";
+        if (isCorrect) {
+          btn.classList.add("correct");
+          fb.style.backgroundColor = "rgba(132, 204, 22, 0.1)";
+          fb.style.color = "var(--secondary-fixed)";
+          fb.innerHTML =
+            "✅ Correcte! Amb <code>@Transactional</code>, si hi ha una excepció, Spring fa <strong>ROLLBACK</strong> de totes les operacions. Cap dels tres UPDATEs s'aplica. Atomicitat: tot o res.";
+        } else {
+          btn.classList.add("wrong");
+          fb.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+          fb.style.color = "var(--danger)";
+          fb.innerHTML =
+            "❌ Recorda: <code>@Transactional</code> garanteix atomicitat. Si qualsevol operació dins del mètode falla amb una RuntimeException, TOTES es desfan.";
+          setTimeout(() => {
+            options.forEach((o) => {
+              o.style.pointerEvents = "auto";
+              o.classList.remove("wrong");
+            });
+            fb.style.display = "none";
+          }, 4000);
+        }
+      }
+
+      const inputsSeq = [
+        { id: "ans1", expected: "update", nextBlock: "step2" },
+        { id: "ans2", expected: "@PutMapping", nextBlock: "step3" },
+        { id: "ans3", expected: "@Transactional", nextBlock: null },
+      ];
+      inputsSeq.forEach((stepItem) => {
+        const inputEl = document.getElementById(stepItem.id);
+        inputEl.addEventListener("input", (e) => {
+          const val = e.target.value.trim();
+          if (val.toLowerCase() === stepItem.expected.toLowerCase()) {
+            e.target.classList.add("success");
+            e.target.blur();
+            e.target.closest(".code-step-block").classList.add("completed");
+            if (stepItem.nextBlock) {
+              const next = document.getElementById(stepItem.nextBlock);
+              next.classList.add("active");
+              setTimeout(
+                () =>
+                  next.scrollIntoView({ behavior: "smooth", block: "center" }),
+                400,
+              );
+            }
+          }
+        });
+      });
     </script>
-</body>
+  </body>
 </html>

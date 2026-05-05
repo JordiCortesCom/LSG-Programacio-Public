@@ -1,293 +1,173 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ca">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sessió 1: Introducció a Spring Boot</title>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&family=Fira+Code&display=swap" rel="stylesheet">
-    <style>
-        /* =========================================
-           SISTEMA DE DISSENY: The Architectural Scholar (V2)
-           Base: guiaEstils.png
-           Adaptat per a curs Spring Boot + BBDD
-           ========================================= */
-        :root {
-            --primary: #1B2C65;
-            --primary-container: #2A3B7A;
-            --secondary: #FAC213;
-            --secondary-container: #FEF08A;
-            --secondary-fixed: #84CC16;
-            --tertiary: #0A1948;
-            --tertiary-container: #050C24;
-            --surface: #F4F7FB;
-            --surface-container-lowest: #FFFFFF;
-            --surface-container-low: #E2E8F0;
-            --surface-container-high: #CBD5E1;
-            --surface-container-highest: #94A3B8;
-            --on-surface: #1B2C65;
-            --on-surface-muted: #475569;
-            --radius-md: 0.5rem;
-            --radius-lg: 1rem;
-            --radius-xl: 1.5rem;
-            --danger: #ef4444;
-        }
-        .shadow-ambient { box-shadow: 0 10px 40px -10px rgba(27, 44, 101, 0.1); }
-        * { box-sizing: border-box; margin: 0; padding: 0; border: none; }
-        body {
-            font-family: 'Manrope', sans-serif; background-color: var(--surface);
-            color: var(--on-surface); line-height: 1.7; font-size: 1.125rem; padding-bottom: 6rem;
-        }
-        h1, h2, h3, h4 { color: var(--primary); letter-spacing: -0.02em; line-height: 1.2; }
-        h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 1rem; }
-        h2 { font-size: 2.2rem; font-weight: 800; margin: 3rem 0 1.5rem 0; border-bottom: 2px solid var(--surface-container-low); padding-bottom: 0.5rem; }
-        h3 { font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1rem 0; }
-        p { margin-bottom: 1.5rem; color: var(--on-surface-muted); }
-        ul, ol { margin-bottom: 1.5rem; padding-left: 2rem; color: var(--on-surface-muted); }
-        li { margin-bottom: 0.75rem; }
-        strong { color: var(--on-surface); }
-        .label { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; }
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
-
-        /* Hero */
-        .hero-section {
-            display: flex; flex-wrap: wrap; align-items: center;
-            justify-content: space-between; min-height: 50vh;
-            margin: 4rem 0; gap: 3rem; position: relative;
-        }
-        .hero-text { flex: 1 1 500px; z-index: 10; }
-        .hero-text .badge {
-            display: inline-block; background: var(--surface-container-low);
-            padding: 6px 14px; border-radius: var(--radius-md);
-            margin-bottom: 1.5rem; color: var(--primary);
-            border-left: 4px solid var(--secondary);
-        }
-        .hero-glass-card {
-            flex: 1 1 400px; background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            padding: 3rem; border-radius: var(--radius-xl); z-index: 5;
-            background-image: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(244,247,251,0.6) 100%);
-            border: 1px solid rgba(255,255,255,0.4);
-        }
-        .hero-glass-card h3 { margin-top: 0; color: var(--primary); font-weight: 800; }
-
-        /* Content Blocks */
-        .content-block {
-            background: var(--surface-container-lowest); border-radius: var(--radius-lg);
-            padding: 3rem; margin-bottom: 2rem; box-shadow: 0 4px 24px rgba(0,0,0,0.03); position: relative;
-        }
-        .callout {
-            background-color: var(--surface-container-low); padding: 1.5rem 2rem;
-            border-radius: var(--radius-lg); margin: 2rem 0; color: var(--primary);
-            font-weight: 600; font-size: 1.15rem; border-left: 5px solid var(--secondary);
-        }
-        .callout.tip { border-left-color: var(--secondary-fixed); }
-        .callout.warning { border-left-color: var(--danger); }
-        .tag {
-            background: var(--surface-container-high); padding: 4px 10px;
-            border-radius: 4px; font-size: 0.75rem; color: var(--primary);
-            display: inline-block; margin-bottom: 8px; font-weight: 800;
-        }
-
-        /* Scholarly Lists */
-        .scholarly-list { list-style: none; padding-left: 0; }
-        .scholarly-list li {
-            padding: 16px 20px; margin-bottom: 12px;
-            background-color: var(--surface-container-low);
-            border-radius: var(--radius-md); transition: background-color 0.2s;
-            display: flex; gap: 15px; align-items: start;
-        }
-        .scholarly-list li:hover { background-color: var(--surface); }
-
-        /* Code Blocks (The Void) */
-        pre {
-            background-color: var(--tertiary-container); color: #E2E8F0;
-            padding: 2.5rem 2rem 2rem 2rem; border-radius: var(--radius-lg);
-            font-family: 'Fira Code', monospace; font-size: 0.95rem;
-            overflow-x: auto; margin: 1.5rem 0; position: relative;
-            box-shadow: inset 0 2px 15px rgba(0,0,0,0.6);
-        }
-        pre::before {
-            content: attr(data-lang); position: absolute; top: 12px; right: 15px;
-            font-family: 'Manrope', sans-serif; font-weight: 800;
-            font-size: 0.75rem; letter-spacing: 0.1em; color: var(--on-surface-muted);
-        }
-        code { font-family: 'Fira Code', monospace; }
-        .inline-code {
-            background: var(--surface-container-low); padding: 2px 8px;
-            border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em;
-            color: var(--primary);
-        }
-
-        /* Checkpoints / Quiz */
-        .checkpoint-card {
-            background: var(--surface-container-lowest); padding: 3rem;
-            border-radius: var(--radius-lg); position: relative;
-            margin-top: 3rem; border: 1px solid var(--surface-container-low);
-        }
-        .quiz-option {
-            background: var(--surface-container-lowest); padding: 1rem 1.5rem;
-            border-radius: var(--radius-md); cursor: pointer;
-            font-weight: 600; font-size: 1rem; font-family: 'Manrope', sans-serif;
-            color: var(--primary); text-align: left; transition: all 0.2s;
-            border: 2px solid var(--surface-container-high);
-            width: 100%; margin-bottom: 10px; display: block;
-        }
-        .quiz-option:hover { border-color: var(--primary); background: var(--surface); }
-        .quiz-option.correct { border-color: var(--secondary-fixed); background: rgba(132, 204, 22, 0.1); color: var(--secondary-fixed); }
-        .quiz-option.wrong { border-color: var(--danger); background: rgba(239, 68, 68, 0.1); color: var(--danger); text-decoration: line-through; }
-        .feedback-area {
-            margin-top: 1.5rem; padding: 1.5rem; border-radius: var(--radius-md);
-            display: none; font-weight: 600; font-size: 1.1rem;
-        }
-
-        /* Fill-in-the-blank inputs */
-        .code-input-inline {
-            background: rgba(255,255,255,0.05); border: none;
-            border-bottom: 2px dashed var(--secondary);
-            color: var(--secondary); font-family: 'Fira Code', monospace;
-            font-size: 1rem; width: 180px; text-align: center;
-            outline: none; padding: 4px; border-radius: 4px 4px 0 0;
-            transition: all 0.2s;
-        }
-        .code-input-inline:focus { background: rgba(255,255,255,0.1); border-bottom-color: var(--surface-container-lowest); }
-        .code-input-inline.success {
-            color: var(--secondary-fixed); border-bottom: 2px solid var(--secondary-fixed);
-            background: rgba(132, 204, 22, 0.1); pointer-events: none;
-        }
-
-        /* Step blocks */
-        .code-step-block { opacity: 0.5; pointer-events: none; transition: opacity 0.4s; position: relative; }
-        .code-step-block.active { opacity: 1; pointer-events: auto; }
-        .code-step-block.completed::after {
-            content: "✓ COMPLETAT"; position: absolute; top: -10px; right: 0;
-            background: var(--secondary-fixed); color: white; padding: 2px 8px;
-            border-radius: 4px; font-weight: 800; font-size: 0.8rem;
-        }
-
-        /* Comparison Table */
-        .comparison-table {
-            width: 100%; border-collapse: separate; border-spacing: 0;
-            margin: 1.5rem 0; border-radius: var(--radius-lg); overflow: hidden;
-        }
-        .comparison-table th {
-            background: var(--primary); color: white; padding: 14px 20px;
-            text-align: left; font-weight: 800; font-size: 0.95rem;
-        }
-        .comparison-table td {
-            padding: 14px 20px; border-bottom: 1px solid var(--surface-container-low);
-            color: var(--on-surface-muted); font-size: 0.95rem;
-        }
-        .comparison-table tr:nth-child(even) td { background: var(--surface); }
-        .comparison-table tr:last-child td { border-bottom: none; }
-
-        /* Diagram blocks */
-        .diagram-block {
-            background: var(--surface-container-low); border-radius: var(--radius-lg);
-            padding: 2.5rem; margin: 2rem 0; text-align: center;
-            font-family: 'Fira Code', monospace; font-size: 0.95rem;
-            line-height: 1.8; color: var(--primary);
-        }
-
-        /* Flashcard */
-        .flashcard-wrapper {
-            perspective: 1200px; width: 100%; max-width: 350px;
-            height: 200px; cursor: pointer; float: right; margin: 0 0 1rem 2rem;
-        }
-        @media (max-width: 768px) { .flashcard-wrapper { float: none; margin: 1rem auto; display: block; } }
-        .flashcard-inner {
-            width: 100%; height: 100%; position: relative;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-style: preserve-3d;
-        }
-        .flashcard-wrapper.flipped .flashcard-inner { transform: rotateY(180deg); }
-        .fc-face {
-            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 2rem; border-radius: var(--radius-lg); text-align: center;
-            box-shadow: 0 8px 30px rgba(27,44,101,0.1);
-        }
-        .fc-front { background: linear-gradient(135deg, var(--surface) 0%, var(--surface-container-low) 100%); color: var(--primary); border: 2px solid var(--primary); }
-        .fc-back { background: var(--primary); color: #fff; transform: rotateY(180deg); border: 2px solid var(--secondary); }
-        .fc-icon { font-size: 2rem; margin-bottom: 10px; }
-    </style>
-</head>
-<body>
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&family=Fira+Code&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body class="page-session">
     <div class="container">
+      <!-- HERO SECTION -->
+      <header class="hero-section">
+        <div class="hero-text">
+          <span class="label badge">Spring Boot · Sessió 1</span>
+          <h1>Introducció a Spring Boot</h1>
+          <p style="font-size: 1.3rem">
+            Del Java que ja coneixes a la realitat de la indústria: descobreix
+            el framework amb el qual es construeixen la majoria d'aplicacions
+            Java empresarials modernes.
+          </p>
+        </div>
 
-        <!-- HERO SECTION -->
-        <header class="hero-section">
-            <div class="hero-text">
-                <span class="label badge">Spring Boot · Sessió 1</span>
-                <h1>Introducció a Spring Boot</h1>
-                <p style="font-size:1.3rem;">Del Java que ja coneixes a la realitat de la indústria: descobreix el framework amb el qual es construeixen la majoria d'aplicacions Java empresarials modernes.</p>
+        <div class="hero-glass-card shadow-ambient">
+          <h3 class="label">Punts Clau de la Sessió</h3>
+          <ul class="scholarly-list">
+            <li>
+              <span>🚀</span> Crear un projecte Spring Boot des de zero amb
+              Spring Initializr.
+            </li>
+            <li>
+              <span>🧩</span> Entendre IoC i Injecció de Dependències: Spring
+              crea els objectes per tu.
+            </li>
+            <li>
+              <span>🌐</span> Construir una API REST funcional amb
+              <code>@RestController</code>.
+            </li>
+            <li>
+              <span>🧪</span> Provar els endpoints amb IntelliJ HTTP Client.
+            </li>
+          </ul>
+        </div>
+      </header>
+
+      <!-- BLOC 1: QUÈ ÉS SPRING BOOT -->
+      <section class="content-block">
+        <span class="tag">Context</span>
+        <h2>1. Per què Spring Boot?</h2>
+
+        <div
+          class="flashcard-wrapper"
+          onclick="this.classList.toggle('flipped')"
+        >
+          <div class="flashcard-inner">
+            <div class="fc-face fc-front">
+              <div class="fc-icon">🏗️</div>
+              <h3>Framework vs Llibreria</h3>
+              <span
+                style="
+                  font-size: 0.8rem;
+                  opacity: 0.7;
+                  margin-top: 10px;
+                  text-transform: uppercase;
+                "
+                >Clica per veure la diferència</span
+              >
             </div>
-
-            <div class="hero-glass-card shadow-ambient">
-                <h3 class="label">Punts Clau de la Sessió</h3>
-                <ul class="scholarly-list">
-                    <li><span>🚀</span> Crear un projecte Spring Boot des de zero amb Spring Initializr.</li>
-                    <li><span>🧩</span> Entendre IoC i Injecció de Dependències: Spring crea els objectes per tu.</li>
-                    <li><span>🌐</span> Construir una API REST funcional amb <code>@RestController</code>.</li>
-                    <li><span>🧪</span> Provar els endpoints amb IntelliJ HTTP Client.</li>
-                </ul>
+            <div class="fc-face fc-back">
+              <p>
+                <strong>Llibreria:</strong> Tu crides el codi (ex:
+                <code>Math.random()</code>).<br /><br /><strong
+                  >Framework:</strong
+                >
+                El framework crida el teu codi. Tu defineixes <em>què</em> fa,
+                Spring decideix <em>quan</em> i <em>com</em> s'executa.
+              </p>
             </div>
-        </header>
+          </div>
+        </div>
 
+        <p>
+          Fins ara heu programat en Java "pur": vosaltres creàveu els objectes,
+          gestionàveu les connexions, i controlàveu tot el flux d'execució. Això
+          funciona per a programes petits, però quan el projecte creix, el codi
+          es torna repetitiu i difícil de mantenir.
+        </p>
 
-        <!-- BLOC 1: QUÈ ÉS SPRING BOOT -->
-        <section class="content-block">
-            <span class="tag">Context</span>
-            <h2>1. Per què Spring Boot?</h2>
+        <p>
+          <strong>Spring Boot</strong> és el framework Java més utilitzat a la
+          indústria. Més del 60% dels projectes Java empresarials el fan servir.
+          Arrenca amb una configuració mínima i et permet centrar-te en la
+          lògica de negoci.
+        </p>
 
-            <div class="flashcard-wrapper" onclick="this.classList.toggle('flipped')">
-                <div class="flashcard-inner">
-                    <div class="fc-face fc-front">
-                        <div class="fc-icon">🏗️</div>
-                        <h3>Framework vs Llibreria</h3>
-                        <span style="font-size:0.8rem; opacity:0.7; margin-top:10px; text-transform:uppercase;">Clica per veure la diferència</span>
-                    </div>
-                    <div class="fc-face fc-back">
-                        <p><strong>Llibreria:</strong> Tu crides el codi (ex: <code>Math.random()</code>).<br><br><strong>Framework:</strong> El framework crida el teu codi. Tu defineixes <em>què</em> fa, Spring decideix <em>quan</em> i <em>com</em> s'executa.</p>
-                    </div>
-                </div>
-            </div>
+        <div class="callout">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >Idea clau</span
+          >
+          Spring Boot no és un llenguatge nou. És Java amb superpowers:
+          configuració automàtica, gestió d'objectes, i un servidor web
+          integrat.
+        </div>
+      </section>
 
-            <p>Fins ara heu programat en Java "pur": vosaltres creàveu els objectes, gestionàveu les connexions, i controlàveu tot el flux d'execució. Això funciona per a programes petits, però quan el projecte creix, el codi es torna repetitiu i difícil de mantenir.</p>
+      <!-- BLOC 2: CREAR EL PROJECTE -->
+      <section class="content-block">
+        <span class="tag">Pràctica guiada</span>
+        <h2>2. Crear el Projecte amb Spring Initializr</h2>
 
-            <p><strong>Spring Boot</strong> és el framework Java més utilitzat a la indústria. Més del 60% dels projectes Java empresarials el fan servir. Arrenca amb una configuració mínima i et permet centrar-te en la lògica de negoci.</p>
+        <p>
+          <a
+            href="https://start.spring.io"
+            target="_blank"
+            style="color: var(--primary); font-weight: 800"
+            >start.spring.io</a
+          >
+          és el generador oficial de projectes Spring Boot. Podeu usar-lo des
+          del navegador o directament des d'IntelliJ (<em
+            >File → New → Project → Spring Initializr</em
+          >).
+        </p>
 
-            <div class="callout">
-                <span class="label" style="display:block; margin-bottom: 8px;">Idea clau</span>
-                Spring Boot no és un llenguatge nou. És Java amb superpowers: configuració automàtica, gestió d'objectes, i un servidor web integrat.
-            </div>
-        </section>
+        <h3>Configuració inicial</h3>
+        <table class="comparison-table">
+          <tr>
+            <th>Camp</th>
+            <th>Valor</th>
+          </tr>
+          <tr>
+            <td>Project</td>
+            <td>Maven</td>
+          </tr>
+          <tr>
+            <td>Language</td>
+            <td>Java</td>
+          </tr>
+          <tr>
+            <td>Spring Boot</td>
+            <td>3.x.x (última estable)</td>
+          </tr>
+          <tr>
+            <td>Group</td>
+            <td><span class="inline-code">com.curs</span></td>
+          </tr>
+          <tr>
+            <td>Artifact</td>
+            <td><span class="inline-code">products</span></td>
+          </tr>
+          <tr>
+            <td>Packaging</td>
+            <td>Jar</td>
+          </tr>
+          <tr>
+            <td>Java</td>
+            <td>17 o superior</td>
+          </tr>
+        </table>
 
+        <h3>Dependència necessària per avui</h3>
+        <p>
+          Només afegiu <strong>Spring Web</strong>. A la Sessió 2 afegirem les
+          dependències de base de dades.
+        </p>
 
-        <!-- BLOC 2: CREAR EL PROJECTE -->
-        <section class="content-block">
-            <span class="tag">Pràctica guiada</span>
-            <h2>2. Crear el Projecte amb Spring Initializr</h2>
-
-            <p><a href="https://start.spring.io" target="_blank" style="color:var(--primary); font-weight:800;">start.spring.io</a> és el generador oficial de projectes Spring Boot. Podeu usar-lo des del navegador o directament des d'IntelliJ (<em>File → New → Project → Spring Initializr</em>).</p>
-
-            <h3>Configuració inicial</h3>
-            <table class="comparison-table">
-                <tr><th>Camp</th><th>Valor</th></tr>
-                <tr><td>Project</td><td>Maven</td></tr>
-                <tr><td>Language</td><td>Java</td></tr>
-                <tr><td>Spring Boot</td><td>3.x.x (última estable)</td></tr>
-                <tr><td>Group</td><td><span class="inline-code">com.curs</span></td></tr>
-                <tr><td>Artifact</td><td><span class="inline-code">products</span></td></tr>
-                <tr><td>Packaging</td><td>Jar</td></tr>
-                <tr><td>Java</td><td>17 o superior</td></tr>
-            </table>
-
-            <h3>Dependència necessària per avui</h3>
-            <p>Només afegiu <strong>Spring Web</strong>. A la Sessió 2 afegirem les dependències de base de dades.</p>
-
-            <h3>Estructura del projecte generat</h3>
-            <pre data-lang="ESTRUCTURA"><code>products/
+        <h3>Estructura del projecte generat</h3>
+        <pre data-lang="ESTRUCTURA"><code>products/
 ├── pom.xml                          ← Dependències Maven
 ├── src/
 │   ├── main/
@@ -298,87 +178,119 @@
 │   └── test/                              ← Tests (més endavant)
 </code></pre>
 
-            <div class="callout tip">
-                <span class="label" style="display:block; margin-bottom: 8px;">💡 Consell</span>
-                El fitxer <span class="inline-code">pom.xml</span> fa el mateix que les dependències JAR que afegíeu manualment, però de forma automàtica. Maven les descarrega d'internet.
-            </div>
-        </section>
+        <div class="callout tip">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >💡 Consell</span
+          >
+          El fitxer <span class="inline-code">pom.xml</span> fa el mateix que
+          les dependències JAR que afegíeu manualment, però de forma automàtica.
+          Maven les descarrega d'internet.
+        </div>
+      </section>
 
+      <!-- BLOC 3: IoC i DI -->
+      <section class="content-block">
+        <span class="tag">Teoria fonamental</span>
+        <h2>3. IoC i Injecció de Dependències</h2>
 
-        <!-- BLOC 3: IoC i DI -->
-        <section class="content-block">
-            <span class="tag">Teoria fonamental</span>
-            <h2>3. IoC i Injecció de Dependències</h2>
+        <p>
+          Aquests dos conceptes són el <strong>cor de Spring</strong>. Si els
+          enteneu, la resta del framework encaixa naturalment.
+        </p>
 
-            <p>Aquests dos conceptes són el <strong>cor de Spring</strong>. Si els enteneu, la resta del framework encaixa naturalment.</p>
-
-            <h3>3.1 Inversió de Control (IoC)</h3>
-            <p>En Java "normal", tu crees els objectes:</p>
-            <pre data-lang="JAVA CLÀSSIC"><code>// TU crees l'objecte, TU el gestiones
+        <h3>3.1 Inversió de Control (IoC)</h3>
+        <p>En Java "normal", tu crees els objectes:</p>
+        <pre
+          data-lang="JAVA CLÀSSIC"
+        ><code>// TU crees l'objecte, TU el gestiones
 ProductService service = new ProductService();
 ProductController controller = new ProductController(service);</code></pre>
 
-            <p>Amb Spring, <strong>Spring crea els objectes per tu</strong> i te'ls dona quan els necessites:</p>
-            <pre data-lang="SPRING"><code>// Spring crea ProductService automàticament
+        <p>
+          Amb Spring, <strong>Spring crea els objectes per tu</strong> i te'ls
+          dona quan els necessites:
+        </p>
+        <pre
+          data-lang="SPRING"
+        ><code>// Spring crea ProductService automàticament
 // Spring crea ProductController i li injecta el service
 // Tu no fas "new" en cap moment</code></pre>
 
-            <div class="diagram-block">
-                <strong style="color:var(--secondary);">Java Tradicional</strong><br>
-                Tu → new Service() → new Controller(service)<br><br>
-                <strong style="color:var(--secondary);">Spring (IoC)</strong><br>
-                Spring Container → crea Service → crea Controller → els connecta
-            </div>
+        <div class="diagram-block">
+          <strong style="color: var(--secondary)">Java Tradicional</strong
+          ><br />
+          Tu → new Service() → new Controller(service)<br /><br />
+          <strong style="color: var(--secondary)">Spring (IoC)</strong><br />
+          Spring Container → crea Service → crea Controller → els connecta
+        </div>
 
-            <h3>3.2 Injecció de Dependències (DI)</h3>
-            <p>L'<strong>Injecció de Dependències</strong> és el mecanisme concret: Spring detecta que un objecte necessita un altre i li'l <em>injecta</em> automàticament.</p>
+        <h3>3.2 Injecció de Dependències (DI)</h3>
+        <p>
+          L'<strong>Injecció de Dependències</strong> és el mecanisme concret:
+          Spring detecta que un objecte necessita un altre i li'l
+          <em>injecta</em> automàticament.
+        </p>
 
-            <h3>3.3 Les anotacions clau</h3>
-            <table class="comparison-table">
-                <tr><th>Anotació</th><th>On es posa</th><th>Què fa</th></tr>
-                <tr>
-                    <td><span class="inline-code">@Component</span></td>
-                    <td>Qualsevol classe</td>
-                    <td>Diu a Spring: "crea una instància d'aquesta classe i guarda-la"</td>
-                </tr>
-                <tr>
-                    <td><span class="inline-code">@Service</span></td>
-                    <td>Classe de lògica de negoci</td>
-                    <td>Igual que @Component però amb nom semàntic (lògica)</td>
-                </tr>
-                <tr>
-                    <td><span class="inline-code">@Repository</span></td>
-                    <td>Classe d'accés a dades</td>
-                    <td>Igual que @Component però amb nom semàntic (dades)</td>
-                </tr>
-                <tr>
-                    <td><span class="inline-code">@RestController</span></td>
-                    <td>Classe que rep peticions HTTP</td>
-                    <td>@Component + gestió HTTP (entrada/sortida JSON)</td>
-                </tr>
-                <tr>
-                    <td><span class="inline-code">@Autowired</span></td>
-                    <td>Atribut o constructor</td>
-                    <td>"Spring, injecta'm aquí l'objecte que necessito"</td>
-                </tr>
-            </table>
+        <h3>3.3 Les anotacions clau</h3>
+        <table class="comparison-table">
+          <tr>
+            <th>Anotació</th>
+            <th>On es posa</th>
+            <th>Què fa</th>
+          </tr>
+          <tr>
+            <td><span class="inline-code">@Component</span></td>
+            <td>Qualsevol classe</td>
+            <td>
+              Diu a Spring: "crea una instància d'aquesta classe i guarda-la"
+            </td>
+          </tr>
+          <tr>
+            <td><span class="inline-code">@Service</span></td>
+            <td>Classe de lògica de negoci</td>
+            <td>Igual que @Component però amb nom semàntic (lògica)</td>
+          </tr>
+          <tr>
+            <td><span class="inline-code">@Repository</span></td>
+            <td>Classe d'accés a dades</td>
+            <td>Igual que @Component però amb nom semàntic (dades)</td>
+          </tr>
+          <tr>
+            <td><span class="inline-code">@RestController</span></td>
+            <td>Classe que rep peticions HTTP</td>
+            <td>@Component + gestió HTTP (entrada/sortida JSON)</td>
+          </tr>
+          <tr>
+            <td><span class="inline-code">@Autowired</span></td>
+            <td>Atribut o constructor</td>
+            <td>"Spring, injecta'm aquí l'objecte que necessito"</td>
+          </tr>
+        </table>
 
-            <div class="callout">
-                <span class="label" style="display:block; margin-bottom: 8px;">Analogia</span>
-                Imagina Spring com un <strong>magatzem intel·ligent</strong>. Tu etiquetes les caixes (<code>@Service</code>, <code>@Repository</code>) i dius on les necessites (<code>@Autowired</code>). El magatzemer (Spring Container) les porta on calgui, sense que hagis de moure-les tu.
-            </div>
-        </section>
+        <div class="callout">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >Analogia</span
+          >
+          Imagina Spring com un <strong>magatzem intel·ligent</strong>. Tu
+          etiquetes les caixes (<code>@Service</code>, <code>@Repository</code>)
+          i dius on les necessites (<code>@Autowired</code>). El magatzemer
+          (Spring Container) les porta on calgui, sense que hagis de moure-les
+          tu.
+        </div>
+      </section>
 
+      <!-- BLOC 4: PRIMER ENDPOINT REST -->
+      <section class="content-block">
+        <span class="tag">Codi en viu</span>
+        <h2>4. La nostra primera API REST</h2>
 
-        <!-- BLOC 4: PRIMER ENDPOINT REST -->
-        <section class="content-block">
-            <span class="tag">Codi en viu</span>
-            <h2>4. La nostra primera API REST</h2>
+        <p>
+          Construïm una API per gestionar productes. Sense base de dades encara:
+          les dades viuen en memòria dins d'una llista Java.
+        </p>
 
-            <p>Construïm una API per gestionar productes. Sense base de dades encara: les dades viuen en memòria dins d'una llista Java.</p>
-
-            <h3>4.1 El Model: <span class="inline-code">Product.java</span></h3>
-            <pre data-lang="JAVA"><code>package com.curs.products.model;
+        <h3>4.1 El Model: <span class="inline-code">Product.java</span></h3>
+        <pre data-lang="JAVA"><code>package com.curs.products.model;
 
 public class Product {
 
@@ -418,8 +330,10 @@ public class Product {
     public void setCategory(String category) { this.category = category; }
 }</code></pre>
 
-            <h3>4.2 El Servei: <span class="inline-code">ProductService.java</span></h3>
-            <pre data-lang="JAVA"><code>package com.curs.products.service;
+        <h3>
+          4.2 El Servei: <span class="inline-code">ProductService.java</span>
+        </h3>
+        <pre data-lang="JAVA"><code>package com.curs.products.service;
 
 import com.curs.products.model.Product;
 import org.springframework.stereotype.Service;
@@ -460,8 +374,11 @@ public class ProductService {
     }
 }</code></pre>
 
-            <h3>4.3 El Controlador: <span class="inline-code">ProductController.java</span></h3>
-            <pre data-lang="JAVA"><code>package com.curs.products.controller;
+        <h3>
+          4.3 El Controlador:
+          <span class="inline-code">ProductController.java</span>
+        </h3>
+        <pre data-lang="JAVA"><code>package com.curs.products.controller;
 
 import com.curs.products.model.Product;
 import com.curs.products.service.ProductService;
@@ -507,44 +424,76 @@ public class ProductController {
     }
 }</code></pre>
 
-            <h3>4.4 Les anotacions HTTP</h3>
-            <table class="comparison-table">
-                <tr><th>Anotació</th><th>Mètode HTTP</th><th>Ús habitual</th></tr>
-                <tr><td><span class="inline-code">@GetMapping</span></td><td>GET</td><td>Obtenir dades</td></tr>
-                <tr><td><span class="inline-code">@PostMapping</span></td><td>POST</td><td>Crear un recurs nou</td></tr>
-                <tr><td><span class="inline-code">@PutMapping</span></td><td>PUT</td><td>Actualitzar un recurs existent</td></tr>
-                <tr><td><span class="inline-code">@DeleteMapping</span></td><td>DELETE</td><td>Eliminar un recurs</td></tr>
-            </table>
+        <h3>4.4 Les anotacions HTTP</h3>
+        <table class="comparison-table">
+          <tr>
+            <th>Anotació</th>
+            <th>Mètode HTTP</th>
+            <th>Ús habitual</th>
+          </tr>
+          <tr>
+            <td><span class="inline-code">@GetMapping</span></td>
+            <td>GET</td>
+            <td>Obtenir dades</td>
+          </tr>
+          <tr>
+            <td><span class="inline-code">@PostMapping</span></td>
+            <td>POST</td>
+            <td>Crear un recurs nou</td>
+          </tr>
+          <tr>
+            <td><span class="inline-code">@PutMapping</span></td>
+            <td>PUT</td>
+            <td>Actualitzar un recurs existent</td>
+          </tr>
+          <tr>
+            <td><span class="inline-code">@DeleteMapping</span></td>
+            <td>DELETE</td>
+            <td>Eliminar un recurs</td>
+          </tr>
+        </table>
 
-            <table class="comparison-table" style="margin-top: 1rem;">
-                <tr><th>Anotació</th><th>D'on llegeix</th><th>Exemple</th></tr>
-                <tr>
-                    <td><span class="inline-code">@PathVariable</span></td>
-                    <td>De la URL</td>
-                    <td><code>/api/products/<strong>3</strong></code> → <code>id = 3</code></td>
-                </tr>
-                <tr>
-                    <td><span class="inline-code">@RequestBody</span></td>
-                    <td>Del cos de la petició (JSON)</td>
-                    <td><code>{"name":"Poma", "price":1.2}</code></td>
-                </tr>
-                <tr>
-                    <td><span class="inline-code">@RequestParam</span></td>
-                    <td>De paràmetres de query</td>
-                    <td><code>/api/products?category=<strong>Fruita</strong></code></td>
-                </tr>
-            </table>
-        </section>
+        <table class="comparison-table" style="margin-top: 1rem">
+          <tr>
+            <th>Anotació</th>
+            <th>D'on llegeix</th>
+            <th>Exemple</th>
+          </tr>
+          <tr>
+            <td><span class="inline-code">@PathVariable</span></td>
+            <td>De la URL</td>
+            <td>
+              <code>/api/products/<strong>3</strong></code> →
+              <code>id = 3</code>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="inline-code">@RequestBody</span></td>
+            <td>Del cos de la petició (JSON)</td>
+            <td><code>{"name":"Poma", "price":1.2}</code></td>
+          </tr>
+          <tr>
+            <td><span class="inline-code">@RequestParam</span></td>
+            <td>De paràmetres de query</td>
+            <td>
+              <code>/api/products?category=<strong>Fruita</strong></code>
+            </td>
+          </tr>
+        </table>
+      </section>
 
+      <!-- BLOC 5: PROVAR L'API -->
+      <section class="content-block">
+        <span class="tag">Eines</span>
+        <h2>5. Provar l'API amb IntelliJ HTTP Client</h2>
 
-        <!-- BLOC 5: PROVAR L'API -->
-        <section class="content-block">
-            <span class="tag">Eines</span>
-            <h2>5. Provar l'API amb IntelliJ HTTP Client</h2>
+        <p>
+          IntelliJ inclou un client HTTP integrat. Crea un fitxer
+          <span class="inline-code">.http</span> al projecte i escriu-hi les
+          peticions:
+        </p>
 
-            <p>IntelliJ inclou un client HTTP integrat. Crea un fitxer <span class="inline-code">.http</span> al projecte i escriu-hi les peticions:</p>
-
-            <pre data-lang="HTTP"><code>### Llistar tots els productes
+        <pre data-lang="HTTP"><code>### Llistar tots els productes
 GET http://localhost:8080/api/products
 Accept: application/json
 
@@ -570,170 +519,269 @@ DELETE http://localhost:8080/api/products/2
 GET http://localhost:8080/api/products/999
 Accept: application/json</code></pre>
 
-            <p>Per executar cada petició, clica la icona <strong>▶</strong> verda al costat de cada bloc <code>###</code>.</p>
+        <p>
+          Per executar cada petició, clica la icona <strong>▶</strong> verda al
+          costat de cada bloc <code>###</code>.
+        </p>
 
-            <div class="callout tip">
-                <span class="label" style="display:block; margin-bottom: 8px;">💡 Per què no Postman?</span>
-                Els fitxers <span class="inline-code">.http</span> són text pla i entren al projecte. Es poden versionar amb Git, compartir, i lliurar com a evidència de proves.
-            </div>
-        </section>
+        <div class="callout tip">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >💡 Per què no Postman?</span
+          >
+          Els fitxers <span class="inline-code">.http</span> són text pla i
+          entren al projecte. Es poden versionar amb Git, compartir, i lliurar
+          com a evidència de proves.
+        </div>
+      </section>
 
+      <!-- BLOC 6: FLUX COMPLET -->
+      <section class="content-block">
+        <h2>6. El flux complet: qui crida a qui?</h2>
 
-        <!-- BLOC 6: FLUX COMPLET -->
-        <section class="content-block">
-            <h2>6. El flux complet: qui crida a qui?</h2>
+        <div class="diagram-block">
+          <span style="color: var(--secondary); font-weight: 800"
+            >Client (HTTP Client / Postman / Navegador)</span
+          ><br />
+          │<br />
+          ▼ petició HTTP<br />
+          ┌───────────────────────────────────────┐<br />
+          │ <strong>@RestController</strong> (ProductController) │<br />
+          │ Rep la petició, extreu paràmetres │<br />
+          └──────────────┬────────────────────────┘<br />
+          │ crida mètode<br />
+          ▼<br />
+          ┌───────────────────────────────────────┐<br />
+          │ <strong>@Service</strong> (ProductService) │<br />
+          │ Lògica de negoci │<br />
+          └──────────────┬────────────────────────┘<br />
+          │ accedeix a dades<br />
+          ▼<br />
+          ┌───────────────────────────────────────┐<br />
+          │ <strong>Dades en memòria</strong> (ArrayList) │<br />
+          │ ⚠️ S2: substituirem per MySQL │<br />
+          └───────────────────────────────────────┘
+        </div>
 
-            <div class="diagram-block">
-                <span style="color:var(--secondary); font-weight:800;">Client (HTTP Client / Postman / Navegador)</span><br>
-                │<br>
-                ▼ petició HTTP<br>
-                ┌───────────────────────────────────────┐<br>
-                │ <strong>@RestController</strong> (ProductController) │<br>
-                │ Rep la petició, extreu paràmetres      │<br>
-                └──────────────┬────────────────────────┘<br>
-                │ crida mètode<br>
-                ▼<br>
-                ┌───────────────────────────────────────┐<br>
-                │ <strong>@Service</strong> (ProductService)             │<br>
-                │ Lògica de negoci                       │<br>
-                └──────────────┬────────────────────────┘<br>
-                │ accedeix a dades<br>
-                ▼<br>
-                ┌───────────────────────────────────────┐<br>
-                │ <strong>Dades en memòria</strong> (ArrayList)         │<br>
-                │ ⚠️ S2: substituirem per MySQL          │<br>
-                └───────────────────────────────────────┘
-            </div>
+        <div class="callout">
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >Per què 3 capes?</span
+          >
+          Si demà volem canviar la font de dades (de llista a MySQL, o de MySQL
+          a MongoDB), <strong>només toquem la capa de dades</strong>. El
+          controlador i el servei no canvien. Això es demostrarà a les Sessions
+          2-5.
+        </div>
+      </section>
 
-            <div class="callout">
-                <span class="label" style="display:block; margin-bottom: 8px;">Per què 3 capes?</span>
-                Si demà volem canviar la font de dades (de llista a MySQL, o de MySQL a MongoDB), <strong>només toquem la capa de dades</strong>. El controlador i el servei no canvien. Això es demostrarà a les Sessions 2-5.
-            </div>
-        </section>
+      <!-- EXERCICI INTERACTIU -->
+      <section class="content-block" style="margin-top: 3rem">
+        <h2>7. Completa el codi: pas a pas</h2>
+        <p>
+          Omple els buits per construir un endpoint que retorna productes
+          filtrats per categoria.
+        </p>
 
-
-        <!-- EXERCICI INTERACTIU -->
-        <section class="content-block" style="margin-top: 3rem;">
-            <h2>7. Completa el codi: pas a pas</h2>
-            <p>Omple els buits per construir un endpoint que retorna productes filtrats per categoria.</p>
-
-            <div class="code-step-block active" id="step1">
-                <h3>Pas 1: El mètode al Service</h3>
-                <p>Afegeix un mètode a <span class="inline-code">ProductService</span> que filtri per categoria:</p>
-                <pre data-lang="JAVA"><code>public List&lt;Product&gt; getByCategory(String category) {
+        <div class="code-step-block active" id="step1">
+          <h3>Pas 1: El mètode al Service</h3>
+          <p>
+            Afegeix un mètode a
+            <span class="inline-code">ProductService</span> que filtri per
+            categoria:
+          </p>
+          <pre
+            data-lang="JAVA"
+          ><code>public List&lt;Product&gt; getByCategory(String category) {
     return products.<input type="text" id="ans1" class="code-input-inline" placeholder="???">()
             .filter(p -> p.getCategory().equals(category))
             .collect(Collectors.toList());
 }</code></pre>
-            </div>
+        </div>
 
-            <div class="code-step-block" id="step2">
-                <h3 style="margin-top:2rem;">Pas 2: L'endpoint al Controller</h3>
-                <p>Crea un endpoint GET que rebi la categoria com a paràmetre de query (<code>/api/products/search?category=Fruita</code>):</p>
-                <pre data-lang="JAVA"><code>@GetMapping("/search")
+        <div class="code-step-block" id="step2">
+          <h3 style="margin-top: 2rem">Pas 2: L'endpoint al Controller</h3>
+          <p>
+            Crea un endpoint GET que rebi la categoria com a paràmetre de query
+            (<code>/api/products/search?category=Fruita</code>):
+          </p>
+          <pre data-lang="JAVA"><code>@GetMapping("/search")
 public List&lt;Product&gt; searchByCategory(
         <input type="text" id="ans2" class="code-input-inline" placeholder="???"> String category) {
     return productService.getByCategory(category);
 }</code></pre>
-            </div>
+        </div>
 
-            <div class="code-step-block" id="step3">
-                <h3 style="margin-top:2rem;">Pas 3: Prova-ho</h3>
-                <p>Escriu la petició HTTP per provar el nou endpoint:</p>
-                <pre data-lang="HTTP"><code>### Buscar per categoria
+        <div class="code-step-block" id="step3">
+          <h3 style="margin-top: 2rem">Pas 3: Prova-ho</h3>
+          <p>Escriu la petició HTTP per provar el nou endpoint:</p>
+          <pre data-lang="HTTP"><code>### Buscar per categoria
 <input type="text" id="ans3" class="code-input-inline" placeholder="???" style="width:380px;"> http://localhost:8080/api/products/search?category=Fruita
 Accept: application/json</code></pre>
-            </div>
-        </section>
+        </div>
+      </section>
 
+      <!-- CHECKPOINT -->
+      <section class="checkpoint-card shadow-ambient" id="quiz1">
+        <span
+          class="label tag"
+          style="background: var(--secondary); color: var(--primary)"
+          >Checkpoint</span
+        >
+        <h2>Verifica el que has après</h2>
 
-        <!-- CHECKPOINT -->
-        <section class="checkpoint-card shadow-ambient" id="quiz1">
-            <span class="label tag" style="background:var(--secondary); color:var(--primary);">Checkpoint</span>
-            <h2>Verifica el que has après</h2>
+        <p style="font-weight: 800; color: var(--primary); margin-top: 1rem">
+          Si elimines l'anotació <span class="inline-code">@Service</span> de
+          <code>ProductService</code> i arrenques l'aplicació, què passarà?
+        </p>
 
-            <p style="font-weight:800; color:var(--primary); margin-top:1rem;">Si elimines l'anotació <span class="inline-code">@Service</span> de <code>ProductService</code> i arrenques l'aplicació, què passarà?</p>
+        <div style="margin-top: 2rem">
+          <button class="quiz-option" onclick="checkQuiz(this, false)">
+            A. L'aplicació arrenca normalment però els endpoints no retornen
+            dades.
+          </button>
+          <button class="quiz-option" onclick="checkQuiz(this, true)">
+            B. L'aplicació falla a l'arrencada amb un error de tipus "Consider
+            defining a bean of type ProductService".
+          </button>
+          <button class="quiz-option" onclick="checkQuiz(this, false)">
+            C. No passa res, Spring detecta automàticament totes les classes del
+            projecte.
+          </button>
+        </div>
 
-            <div style="margin-top:2rem;">
-                <button class="quiz-option" onclick="checkQuiz(this, false)">A. L'aplicació arrenca normalment però els endpoints no retornen dades.</button>
-                <button class="quiz-option" onclick="checkQuiz(this, true)">B. L'aplicació falla a l'arrencada amb un error de tipus "Consider defining a bean of type ProductService".</button>
-                <button class="quiz-option" onclick="checkQuiz(this, false)">C. No passa res, Spring detecta automàticament totes les classes del projecte.</button>
-            </div>
+        <div id="quiz-feedback" class="feedback-area"></div>
+      </section>
 
-            <div id="quiz-feedback" class="feedback-area"></div>
-        </section>
+      <!-- RESUM -->
+      <section
+        class="content-block"
+        style="margin-top: 3rem; border-top: 4px solid var(--secondary)"
+      >
+        <h2>📋 Resum de la sessió</h2>
+        <ul class="scholarly-list">
+          <li>
+            <span>1.</span> <strong>Spring Boot</strong> és un framework que
+            gestiona l'arrencada, la configuració i el cicle de vida dels
+            objectes Java.
+          </li>
+          <li>
+            <span>2.</span> <strong>IoC</strong>: Spring crea i gestiona els
+            objectes (Beans). Tu no fas <code>new</code>.
+          </li>
+          <li>
+            <span>3.</span> <strong>DI</strong>: Spring detecta dependències
+            entre objectes i les connecta automàticament amb
+            <code>@Autowired</code>.
+          </li>
+          <li>
+            <span>4.</span> L'arquitectura
+            <strong>Controller → Service → Repository</strong> separa
+            responsabilitats.
+          </li>
+          <li>
+            <span>5.</span> Una API REST es construeix amb
+            <code>@GetMapping</code>, <code>@PostMapping</code>,
+            <code>@DeleteMapping</code>, etc.
+          </li>
+        </ul>
 
-
-        <!-- RESUM -->
-        <section class="content-block" style="margin-top: 3rem; border-top: 4px solid var(--secondary);">
-            <h2>📋 Resum de la sessió</h2>
-            <ul class="scholarly-list">
-                <li><span>1.</span> <strong>Spring Boot</strong> és un framework que gestiona l'arrencada, la configuració i el cicle de vida dels objectes Java.</li>
-                <li><span>2.</span> <strong>IoC</strong>: Spring crea i gestiona els objectes (Beans). Tu no fas <code>new</code>.</li>
-                <li><span>3.</span> <strong>DI</strong>: Spring detecta dependències entre objectes i les connecta automàticament amb <code>@Autowired</code>.</li>
-                <li><span>4.</span> L'arquitectura <strong>Controller → Service → Repository</strong> separa responsabilitats.</li>
-                <li><span>5.</span> Una API REST es construeix amb <code>@GetMapping</code>, <code>@PostMapping</code>, <code>@DeleteMapping</code>, etc.</li>
-            </ul>
-
-            <div class="callout" style="background-color: var(--surface); border: 2px dashed var(--primary);">
-                <span class="label" style="display:block; margin-bottom: 8px;">Pròxima sessió</span>
-                Substituurem la llista en memòria per una connexió real a MySQL amb <strong>JdbcTemplate</strong>: executareu SQL natiu des de Spring.
-            </div>
-        </section>
-
+        <div
+          class="callout"
+          style="
+            background-color: var(--surface);
+            border: 2px dashed var(--primary);
+          "
+        >
+          <span class="label" style="display: block; margin-bottom: 8px"
+            >Pròxima sessió</span
+          >
+          Substituurem la llista en memòria per una connexió real a MySQL amb
+          <strong>JdbcTemplate</strong>: executareu SQL natiu des de Spring.
+        </div>
+      </section>
     </div>
+
+    <nav class="session-nav" aria-label="Navegacio entre sessions">
+      <a class="session-nav-link is-disabled" href="#" aria-disabled="true"
+        >&larr; Anterior</a
+      >
+      <a class="session-nav-link is-index" href="../index.html">Index</a>
+      <a
+        class="session-nav-link"
+        href="../Sessio 2/S02_JdbcTemplate_Select.html"
+        >Seguent &rarr;</a
+      >
+    </nav>
 
     <!-- SCRIPTS -->
     <script>
-        // Quiz
-        function checkQuiz(btn, isCorrect) {
-            const options = btn.parentElement.querySelectorAll('.quiz-option');
-            options.forEach(o => { o.style.pointerEvents = 'none'; o.classList.remove('correct', 'wrong'); });
-            const fb = document.getElementById('quiz-feedback');
-            fb.style.display = 'block';
-
-            if (isCorrect) {
-                btn.classList.add('correct');
-                fb.style.backgroundColor = "rgba(132, 204, 22, 0.1)";
-                fb.style.color = "var(--secondary-fixed)";
-                fb.innerHTML = "✅ Correcte! Sense <code>@Service</code>, Spring no sap que ha de crear <code>ProductService</code>. Quan el Controller el demana amb <code>@Autowired</code>, Spring no el troba i l'aplicació falla.";
-            } else {
-                btn.classList.add('wrong');
-                fb.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
-                fb.style.color = "var(--danger)";
-                fb.innerHTML = "❌ No del tot. Recorda: Spring només gestiona classes que estan anotades. Sense <code>@Service</code>, la classe existeix però Spring no la coneix.";
-                setTimeout(() => {
-                    options.forEach(o => { o.style.pointerEvents = 'auto'; o.classList.remove('wrong'); });
-                    fb.style.display = 'none';
-                }, 4000);
-            }
-        }
-
-        // Fill-in-the-blank interactive code
-        const inputsSeq = [
-            { id: 'ans1', expected: 'stream', nextBlock: 'step2' },
-            { id: 'ans2', expected: '@RequestParam', altExpected: '@requestparam', nextBlock: 'step3' },
-            { id: 'ans3', expected: 'GET', nextBlock: null }
-        ];
-
-        inputsSeq.forEach((stepItem) => {
-            const inputEl = document.getElementById(stepItem.id);
-            inputEl.addEventListener('input', (e) => {
-                const val = e.target.value.trim();
-                const match = val.toLowerCase() === stepItem.expected.toLowerCase()
-                    || (stepItem.altExpected && val.toLowerCase() === stepItem.altExpected);
-                if (match) {
-                    e.target.classList.add('success');
-                    e.target.blur();
-                    e.target.closest('.code-step-block').classList.add('completed');
-                    if (stepItem.nextBlock) {
-                        const next = document.getElementById(stepItem.nextBlock);
-                        next.classList.add('active');
-                        setTimeout(() => next.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400);
-                    }
-                }
-            });
+      // Quiz
+      function checkQuiz(btn, isCorrect) {
+        const options = btn.parentElement.querySelectorAll(".quiz-option");
+        options.forEach((o) => {
+          o.style.pointerEvents = "none";
+          o.classList.remove("correct", "wrong");
         });
+        const fb = document.getElementById("quiz-feedback");
+        fb.style.display = "block";
+
+        if (isCorrect) {
+          btn.classList.add("correct");
+          fb.style.backgroundColor = "rgba(132, 204, 22, 0.1)";
+          fb.style.color = "var(--secondary-fixed)";
+          fb.innerHTML =
+            "✅ Correcte! Sense <code>@Service</code>, Spring no sap que ha de crear <code>ProductService</code>. Quan el Controller el demana amb <code>@Autowired</code>, Spring no el troba i l'aplicació falla.";
+        } else {
+          btn.classList.add("wrong");
+          fb.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+          fb.style.color = "var(--danger)";
+          fb.innerHTML =
+            "❌ No del tot. Recorda: Spring només gestiona classes que estan anotades. Sense <code>@Service</code>, la classe existeix però Spring no la coneix.";
+          setTimeout(() => {
+            options.forEach((o) => {
+              o.style.pointerEvents = "auto";
+              o.classList.remove("wrong");
+            });
+            fb.style.display = "none";
+          }, 4000);
+        }
+      }
+
+      // Fill-in-the-blank interactive code
+      const inputsSeq = [
+        { id: "ans1", expected: "stream", nextBlock: "step2" },
+        {
+          id: "ans2",
+          expected: "@RequestParam",
+          altExpected: "@requestparam",
+          nextBlock: "step3",
+        },
+        { id: "ans3", expected: "GET", nextBlock: null },
+      ];
+
+      inputsSeq.forEach((stepItem) => {
+        const inputEl = document.getElementById(stepItem.id);
+        inputEl.addEventListener("input", (e) => {
+          const val = e.target.value.trim();
+          const match =
+            val.toLowerCase() === stepItem.expected.toLowerCase() ||
+            (stepItem.altExpected &&
+              val.toLowerCase() === stepItem.altExpected);
+          if (match) {
+            e.target.classList.add("success");
+            e.target.blur();
+            e.target.closest(".code-step-block").classList.add("completed");
+            if (stepItem.nextBlock) {
+              const next = document.getElementById(stepItem.nextBlock);
+              next.classList.add("active");
+              setTimeout(
+                () =>
+                  next.scrollIntoView({ behavior: "smooth", block: "center" }),
+                400,
+              );
+            }
+          }
+        });
+      });
     </script>
-</body>
+  </body>
 </html>
